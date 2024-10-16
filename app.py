@@ -6,7 +6,7 @@ from app.cctvs import cctvs_bp
 from app.members import members_bp
 from app.team import team_bp
 from app.ifes import ifes_bp
-from app.state import state_bp
+from app.state import state_bp#TEST
 from app.visuals import visual_bp
 
 app = Flask(__name__)
