@@ -37,22 +37,22 @@ def add_state():
     return render_template('add_state.html')
 
 # Edit a State
-@state_bp.route('/edit_state/<int:stateID>', methods=['GET', 'POST'])
-def edit_state(stateID):
+@state_bp.route('/edit_state/<string:stateCode>', methods=['GET', 'POST'])
+def edit_state(stateCode):
     conn = get_db_connection()
     cursor = conn.cursor()
 
     if request.method == 'POST':
         stateName = request.form['stateName']
 
-        cursor.execute('UPDATE STATE SET stateName = %s WHERE stateID = %s', (stateName, stateID))
+        cursor.execute('UPDATE STATE SET stateName = %s WHERE stateCode = %s', (stateName, stateCode))
         conn.commit()
 
         flash('State updated successfully!')
         return redirect(url_for('state.state_list'))
     
     # Fetch the state data to be edited
-    cursor.execute('SELECT stateID, stateName FROM STATE WHERE stateID = %s', (stateID,))
+    cursor.execute('SELECT stateCode, stateName FROM STATE WHERE stateCode = %s', (stateCode,))
     state = cursor.fetchone()
 
     cursor.close()
@@ -61,11 +61,11 @@ def edit_state(stateID):
     return render_template('edit_state.html', state=state)
 
 # Delete a State
-@state_bp.route('/delete_state/<int:stateID>', methods=['POST'])
-def delete_state(stateID):
+@state_bp.route('/delete_state/<string:stateCode>', methods=['POST'])
+def delete_state(stateCode):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM STATE WHERE stateID = %s', (stateID,))
+    cursor.execute('DELETE FROM STATE WHERE stateCode = %s', (stateCode,))
     conn.commit()
     cursor.close()
     conn.close()

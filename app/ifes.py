@@ -13,7 +13,7 @@ def ifes_list():
     query = """
     SELECT IFES.ifesID, IFES.ifesName, IFES.ifesEmail, WILAYAH.wilayahName, WILAYAH.wilayahCode 
     FROM IFES
-    JOIN WILAYAH ON IFES.wilayahID = WILAYAH.wilayahID
+    left JOIN WILAYAH ON IFES.wilayahID = WILAYAH.wilayahID
     """
     cursor.execute(query)
     ifes_records = cursor.fetchall()
