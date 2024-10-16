@@ -18,7 +18,7 @@ app.register_blueprint(pbts_bp)
 app.register_blueprint(cctvs_bp)
 app.register_blueprint(members_bp)
 app.register_blueprint(team_bp)
-app.register_blueprint(ifes_bp)
+app.register_blueprint(ifes_bp)#this is the new changes
 app.register_blueprint(state_bp)
 
 if __name__ == '__main__':
