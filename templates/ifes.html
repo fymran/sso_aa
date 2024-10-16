@@ -48,7 +48,7 @@
         </div>
         <div class="mb-3">
             <label for="wilayahID" class="form-label">Wilayah</label>
-            <select class="form-control" id="wilayahID" name="wilayahID" >
+            <select class="form-control" id="wilayahID" name="wilayahID" required>
                 {% for wilayah in wilayahs %}
                 <option value="{{ wilayah[0] }}">{{ wilayah[1] }} ({{ wilayah[2] }})</option>
                 {% endfor %}
