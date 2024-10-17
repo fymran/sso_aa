@@ -23,7 +23,8 @@
         <input type="text" name="postcode" value="{{ asset[5] }}"><br>
 
         <label for="nodeID">Node:</label>
-        <select name="nodeID" required>
+        <select class="form-control" name="nodeID">
+            <option value="" selected>N/A</option>
             {% for node in nodes %}
             <option value="{{ node[0] }}" {% if asset[6] == node[0] %}selected{% endif %}>{{ node[1] }}</option>
             {% endfor %}

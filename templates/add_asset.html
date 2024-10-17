@@ -43,7 +43,8 @@
         </div>
         <div class="mb-3">
             <label for="nodeID" class="form-label">Node ID</label>
-            <select class="form-control" name="nodeID" required>
+            <select class="form-control" name="nodeID">
+                <option value="" selected>N/A</option>
                 {% for node in nodes %}
                 <option value="{{ node[0] }}">{{ node[1] }}</option>
                 {% endfor %}

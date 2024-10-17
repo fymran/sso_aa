@@ -40,7 +40,6 @@ def add_project():
             coordiEast VARCHAR(100),
             postcode varchar(5),
             nodeID INTEGER,
-            projID INTEGER,
             PRIMARY KEY (assetID, pbtID)
         );
         """

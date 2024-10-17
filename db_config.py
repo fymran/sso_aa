@@ -5,6 +5,6 @@ def get_db_connection():
         host='localhost',
         user='root',
         password='',
-        database='soc_db'
+        database='sso_db'
     )
     return connection

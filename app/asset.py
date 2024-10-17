@@ -53,6 +53,9 @@ def add_asset(projectID):
         coordiEast = request.form['coordiEast']
         postcode = request.form['postcode']
         nodeID = request.form['nodeID']
+        
+        if nodeID == '':
+            nodeID = None
 
         cursor.execute(f"""
             INSERT INTO asset_{projectID} (assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID)
