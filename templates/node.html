@@ -46,14 +46,7 @@
             <label for="nodeName" class="form-label">Node Name</label>
             <input type="text" class="form-control" id="nodeName" name="nodeName" required>
         </div>
-        <div class="mb-3">
-            <label for="zoneID" class="form-label">Zone</label>
-            <select class="form-control" id="zoneID" name="zoneID" required>
-                {% for zone in zones %}
-                <option value="{{ zone[0] }}">{{ zone[1] }}</option>
-                {% endfor %}
-            </select>
-        </div>
+        
         <button type="submit" class="btn btn-success">Add Node</button>
     </form>    
 </div>
