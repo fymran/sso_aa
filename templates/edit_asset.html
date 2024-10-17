@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Asset</title>
+</head>
+<body>
+    <h1>Edit Asset (Asset ID: {{ asset[0] }})</h1>
+    <form method="POST" action="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0], pbtID=asset[1]) }}">
+        <label for="address">Address:</label>
+        <input type="text" name="address" value="{{ asset[2] }}"><br>
+
+        <label for="coordiNorth">Coordi North:</label>
+        <input type="text" name="coordiNorth" value="{{ asset[3] }}"><br>
+
+        <label for="coordiEast">Coordi East:</label>
+        <input type="text" name="coordiEast" value="{{ asset[4] }}"><br>
+
+        <label for="postcode">Postcode:</label>
+        <input type="text" name="postcode" value="{{ asset[5] }}"><br>
+
+        <label for="nodeID">Node:</label>
+        <select name="nodeID" required>
+            {% for node in nodes %}
+            <option value="{{ node[0] }}" {% if asset[6] == node[0] %}selected{% endif %}>{{ node[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <button type="submit">Update Asset</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Asset</title>
+</head>
+<body>
+    <h1>Add New Asset for Project ID: {{ projectID }}</h1>
+    <form method="POST" action="{{ url_for('asset.add_asset', projectID=projectID) }}">
+        <label for="assetID">Asset ID:</label>
+        <input type="text" name="assetID" required><br>
+        
+        <label for="pbtID">PBT ID:</label>
+        <input type="text" name="pbtID" required><br>
+
+        <label for="address">Address:</label>
+        <input type="text" name="address"><br>
+        
+        <label for="coordiNorth">Coordi North:</label>
+        <input type="text" name="coordiNorth"><br>
+
+        <label for="coordiEast">Coordi East:</label>
+        <input type="text" name="coordiEast"><br>
+
+        <label for="postcode">Postcode:</label>
+        <input type="text" name="postcode"><br>
+
+        <label for="nodeID">Node:</label>
+        <select name="nodeID" required>
+            {% for node in nodes %}
+            <option value="{{ node[0] }}">{{ node[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <button type="submit">Add Asset</button>
+    </form>
+</body>
+</html>
