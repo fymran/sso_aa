@@ -6,6 +6,8 @@
     <title>Edit Asset</title>
 </head>
 <body>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
+
     <h1>Edit Asset (Asset ID: {{ asset[0] }})</h1>
     <form method="POST" action="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0], pbtID=asset[1]) }}">
         <label for="address">Address:</label>

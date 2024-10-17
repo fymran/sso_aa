@@ -6,6 +6,8 @@
     <title>Select Project</title>
 </head>
 <body>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
+
     <h1>Select Project</h1>
     <form method="POST" action="{{ url_for('asset.manage_asset') }}">
         <label for="projectID">Project:</label>

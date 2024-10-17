@@ -42,14 +42,14 @@ def add_ifes():
         return redirect(url_for('ifes.ifes_list'))
 
     # Fetch all wilayah to show in the select dropdown
-    cursor.execute('SELECT wilayahID, wilayahName, wilayahCode FROM WILAYAH')
+    cursor.execute('SELECT wilayahID, wilayahCode, wilayahName FROM WILAYAH')
     wilayah_records = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
     # Render the form and pass the wilayah data to the template
-    return render_template('ifes.html', wilayahs=wilayah_records)
+    return render_template('add_ifes.html', wilayahs=wilayah_records)
 
 # Edit IFES
 @ifes_bp.route('/edit_ifes/<int:ifesID>', methods=['GET', 'POST'])

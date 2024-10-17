@@ -44,7 +44,7 @@ def asset_list(projectID):
 def add_asset(projectID):
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     if request.method == 'POST':
         assetID = request.form['assetID']
         pbtID = request.form['pbtID']
@@ -53,24 +53,29 @@ def add_asset(projectID):
         coordiEast = request.form['coordiEast']
         postcode = request.form['postcode']
         nodeID = request.form['nodeID']
+
+        cursor.execute(f"""
+            INSERT INTO asset_{projectID} (assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID))
         
-        asset_table = f"asset_{projectID}"
-        cursor.execute(f'INSERT INTO {asset_table} (assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID) VALUES (%s, %s, %s, %s, %s, %s, %s)', 
-                       (assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID))
         conn.commit()
         cursor.close()
         conn.close()
-        flash('New Asset added successfully!')
+        flash('Asset added successfully!')
         return redirect(url_for('asset.asset_list', projectID=projectID))
-    
-    # Fetch all nodes for dropdown selection
+
+    # Fetch all PBTs to display in the dropdown
+    cursor.execute('SELECT pbtID, pbtCode FROM PBT')
+    pbts = cursor.fetchall()
     cursor.execute('SELECT nodeID, nodeName FROM NODE')
     nodes = cursor.fetchall()
     
     cursor.close()
     conn.close()
-    
-    return render_template('add_asset.html', projectID=projectID, nodes=nodes)
+
+    return render_template('add_asset.html', projectID=projectID, pbts=pbts, nodes=nodes)
+
 
 # Step 4: Edit Asset
 @asset_bp.route('/edit_asset/<int:projectID>/<string:assetID>/<string:pbtID>', methods=['GET', 'POST'])

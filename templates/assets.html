@@ -6,6 +6,8 @@
     <title>Assets</title>
 </head>
 <body>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
+
     <h1>Assets for Project ID: {{ projectID }}</h1>
     <a href="{{ url_for('asset.add_asset', projectID=projectID) }}">Add New Asset</a>
     <table border="1">
