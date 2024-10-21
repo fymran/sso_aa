@@ -30,7 +30,12 @@ def asset_list(projectID):
     
     # Dynamically select the table based on projectID
     asset_table = f"asset_{projectID}"
-    query = f"SELECT assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID FROM {asset_table}"
+    query = f"""
+        SELECT A.assetID, A.assetNo, P.pbtCode, A.address, A.coordiNorth, A.coordiEast, A.postcode, N.nodeCode 
+        FROM {asset_table} A 
+        LEFT JOIN PBT P ON A.pbtID = P.pbtID 
+        LEFT JOIN NODE N ON A.nodeID = N.nodeID
+        """
     cursor.execute(query)
     assets = cursor.fetchall()
     
@@ -46,7 +51,7 @@ def add_asset(projectID):
     cursor = conn.cursor()
 
     if request.method == 'POST':
-        assetID = request.form['assetID']
+        assetNo = request.form['assetNo']
         pbtID = request.form['pbtID']
         address = request.form['address']
         coordiNorth = request.form['coordiNorth']
@@ -58,9 +63,9 @@ def add_asset(projectID):
             nodeID = None
 
         cursor.execute(f"""
-            INSERT INTO asset_{projectID} (assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID)
+            INSERT INTO asset_{projectID} (assetNo, pbtID, address, coordiNorth, coordiEast, postcode, nodeID)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (assetID, pbtID, address, coordiNorth, coordiEast, postcode, nodeID))
+        """, (assetNo, pbtID, address, coordiNorth, coordiEast, postcode, nodeID))
         
         conn.commit()
         cursor.close()
@@ -79,49 +84,61 @@ def add_asset(projectID):
 
     return render_template('add_asset.html', projectID=projectID, pbts=pbts, nodes=nodes)
 
-
-# Step 4: Edit Asset
-@asset_bp.route('/edit_asset/<int:projectID>/<string:assetID>/<string:pbtID>', methods=['GET', 'POST'])
-def edit_asset(projectID, assetID, pbtID):
+@asset_bp.route('/edit_asset/<int:projectID>/<int:assetID>', methods=['GET', 'POST'])
+def edit_asset(projectID, assetID):
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     asset_table = f"asset_{projectID}"
-    
+
     if request.method == 'POST':
+        assetNo = request.form['assetNo']
+        pbtID = request.form['pbtID']
         address = request.form['address']
         coordiNorth = request.form['coordiNorth']
         coordiEast = request.form['coordiEast']
         postcode = request.form['postcode']
         nodeID = request.form['nodeID']
+
+        if nodeID == '':
+            nodeID = None
         
-        cursor.execute(f'UPDATE {asset_table} SET address=%s, coordiNorth=%s, coordiEast=%s, postcode=%s, nodeID=%s WHERE assetID=%s AND pbtID=%s', 
-                       (address, coordiNorth, coordiEast, postcode, nodeID, assetID, pbtID))
-        conn.commit()
-        flash('Asset updated successfully!')
+        try:
+            cursor.execute(f'''
+                UPDATE {asset_table} 
+                SET assetNo=%s, pbtID=%s, address=%s, coordiNorth=%s, coordiEast=%s, postcode=%s, nodeID=%s 
+                WHERE assetID=%s
+            ''', (assetNo, pbtID, address, coordiNorth, coordiEast, postcode, nodeID, assetID))
+            conn.commit()
+            flash('Asset updated successfully!')
+        except Exception as e:
+            flash(f'Error updating asset: {str(e)}')
+        
         return redirect(url_for('asset.asset_list', projectID=projectID))
-    
+
     # Fetch the asset details
-    cursor.execute(f'SELECT * FROM {asset_table} WHERE assetID = %s AND pbtID = %s', (assetID, pbtID))
+    cursor.execute(f'SELECT * FROM {asset_table} WHERE assetID = %s', (assetID,))
     asset = cursor.fetchone()
-    
-    # Fetch all nodes for the dropdown
+
+    # Fetch PBTs and Nodes for dropdown
+    cursor.execute('SELECT pbtID, pbtCode FROM PBT')
+    pbts = cursor.fetchall()
     cursor.execute('SELECT nodeID, nodeName FROM NODE')
     nodes = cursor.fetchall()
-    
+
     cursor.close()
     conn.close()
-    
-    return render_template('edit_asset.html', asset=asset, projectID=projectID, nodes=nodes)
+
+    return render_template('edit_asset.html', asset=asset, projectID=projectID, nodes=nodes, pbts=pbts)
 
 # Step 5: Delete Asset
-@asset_bp.route('/delete_asset/<int:projectID>/<string:assetID>/<string:pbtID>', methods=['POST'])
-def delete_asset(projectID, assetID, pbtID):
+@asset_bp.route('/delete_asset/<int:projectID>/<int:assetID>', methods=['POST'])
+def delete_asset(projectID, assetID):
     conn = get_db_connection()
     cursor = conn.cursor()
     
     asset_table = f"asset_{projectID}"
-    cursor.execute(f'DELETE FROM {asset_table} WHERE assetID = %s AND pbtID = %s', (assetID, pbtID))
+    cursor.execute(f'DELETE FROM {asset_table} WHERE assetID = %s', (assetID,))
     conn.commit()
     
     cursor.close()

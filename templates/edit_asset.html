@@ -9,24 +9,34 @@
     <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
 
     <h1>Edit Asset (Asset ID: {{ asset[0] }})</h1>
-    <form method="POST" action="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0], pbtID=asset[1]) }}">
+    <form method="POST" action="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0]) }}">
+        <label for="assetNo">asset No.:</label>
+        <input type="text" name="assetNo" value="{{ asset[1] }}"><br>
+
+        <label for="pbtID">PBT:</label>
+        <select class="form-control" name="pbtID">
+            {% for pbt in pbts %}
+            <option value="{{ pbt[0] }}" {% if asset[2] == pbt[0] %}selected{% endif %}>{{ pbt[1] }}</option>
+            {% endfor %}
+        </select><br>
+
         <label for="address">Address:</label>
-        <input type="text" name="address" value="{{ asset[2] }}"><br>
+        <input type="text" name="address" value="{{ asset[3] }}"><br>
 
         <label for="coordiNorth">Coordi North:</label>
-        <input type="text" name="coordiNorth" value="{{ asset[3] }}"><br>
+        <input type="text" name="coordiNorth" value="{{ asset[4] }}"><br>
 
         <label for="coordiEast">Coordi East:</label>
-        <input type="text" name="coordiEast" value="{{ asset[4] }}"><br>
+        <input type="text" name="coordiEast" value="{{ asset[5] }}"><br>
 
         <label for="postcode">Postcode:</label>
-        <input type="text" name="postcode" value="{{ asset[5] }}"><br>
+        <input type="text" name="postcode" value="{{ asset[6] }}"><br>
 
         <label for="nodeID">Node:</label>
         <select class="form-control" name="nodeID">
             <option value="" selected>N/A</option>
             {% for node in nodes %}
-            <option value="{{ node[0] }}" {% if asset[6] == node[0] %}selected{% endif %}>{{ node[1] }}</option>
+            <option value="{{ node[0] }}" {% if asset[7] == node[0] %}selected{% endif %}>{{ node[1] }}</option>
             {% endfor %}
         </select><br>
 

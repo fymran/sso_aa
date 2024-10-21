@@ -14,21 +14,19 @@
         <form action="{{ url_for('node.edit_node', nodeID=node[0]) }}" method="POST">
             <div class="mb-3">
                 <label for="nodeCode" class="form-label">Node Code</label>
-                <input type="text" class="form-control" id="nodeCode" name="nodeCode" value="{{ node.nodeCode }}" required>
+                <input type="text" class="form-control" id="nodeCode" name="nodeCode" value="{{ node[1] }}" required>
             </div>
 
             <div class="mb-3">
                 <label for="nodeName" class="form-label">Node Name</label>
-                <input type="text" class="form-control" id="nodeName" name="nodeName" value="{{ node.nodeName }}" required>
+                <input type="text" class="form-control" id="nodeName" name="nodeName" value="{{ node[2] }}" >
             </div>
 
             <div class="mb-3">
                 <label for="zoneID" class="form-label">Zone</label>
                 <select class="form-control" id="zoneID" name="zoneID" required>
                     {% for zone in zones %}
-                    <option value="{{ zone.zoneID }}" {% if node.zoneID == zone.zoneID %}selected{% endif %}>
-                        {{ zone.zoneName }}
-                    </option>
+                    <option value="{{ zone[0] }}"> {{ zone[1]}}</option>
                     {% endfor %}
                 </select>
             </div>

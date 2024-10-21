@@ -32,17 +32,18 @@ def add_project():
 
         # Create the corresponding asset table for the project
         create_table_query = f"""
-        CREATE TABLE asset_{projID} (
-            assetID varchar(25),
-            pbtID varchar(25),
-            address VARCHAR(255),
-            coordiNorth VARCHAR(100),
-            coordiEast VARCHAR(100),
-            postcode varchar(5),
-            nodeID INTEGER,
-            PRIMARY KEY (assetID, pbtID)
-        );
-        """
+            CREATE TABLE asset_{projID} (
+                assetID INTEGER PRIMARY KEY AUTO_INCREMENT,
+                assetNo VARCHAR(25),
+                pbtID INTEGER,
+                address VARCHAR(255),
+                coordiNorth VARCHAR(100),
+                coordiEast VARCHAR(100),
+                postcode VARCHAR(5),
+                nodeID INTEGER,
+            );
+            """
+
         cursor.execute(create_table_query)
         conn.commit()
 

@@ -13,6 +13,10 @@
     <h2>Add New Asset</h2>
     <form action="{{ url_for('asset.add_asset', projectID=projectID) }}" method="POST">
         <div class="mb-3">
+            <label for="assetNo" class="form-label">Asset No</label>
+            <input type="text" class="form-control" id="assetNo" name="assetNo" required>
+        </div>
+        <div class="mb-3">
             <label for="pbtID" class="form-label">PBT Code</label>
             <select class="form-control" id="pbtID" name="pbtID" required>
                 <option value="" disabled selected>Select PBT</option>
@@ -20,10 +24,6 @@
                 <option value="{{ pbt[0] }}">{{ pbt[1] }}</option> <!-- pbtID value and pbtCode displayed -->
                 {% endfor %}
             </select>
-        </div>
-        <div class="mb-3">
-            <label for="assetID" class="form-label">Asset ID</label>
-            <input type="text" class="form-control" id="assetID" name="assetID" required>
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Address</label>

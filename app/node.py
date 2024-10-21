@@ -67,7 +67,7 @@ def edit_node(nodeID):
         return redirect(url_for('node.node_list'))
     
     # Fetch the node data
-    cursor.execute('SELECT * FROM NODE WHERE nodeID = %s', (nodeID,))
+    cursor.execute('SELECT nodeID, nodeCode, nodeName, zoneID FROM NODE WHERE nodeID = %s', (nodeID,))
     node = cursor.fetchone()
     
     # Fetch all zone data for the select dropdown
