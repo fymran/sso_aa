@@ -1,8 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
 asset_bp = Blueprint('asset', __name__)
 
+@asset_bp.before_request
+def restrict_to_admin():
+    if 'admin' not in session:
+        flash('Please log in to access the admin panel.')
+        return redirect(url_for('login'))
+    
 # Step 1: Select Project
 @asset_bp.route('/manage_asset', methods=['GET', 'POST'])
 def manage_asset():
@@ -76,7 +82,7 @@ def add_asset(projectID):
     # Fetch all PBTs to display in the dropdown
     cursor.execute('SELECT pbtID, pbtCode FROM PBT')
     pbts = cursor.fetchall()
-    cursor.execute('SELECT nodeID, nodeName FROM NODE')
+    cursor.execute('SELECT nodeID, nodeCode FROM NODE')
     nodes = cursor.fetchall()
     
     cursor.close()
@@ -123,7 +129,7 @@ def edit_asset(projectID, assetID):
     # Fetch PBTs and Nodes for dropdown
     cursor.execute('SELECT pbtID, pbtCode FROM PBT')
     pbts = cursor.fetchall()
-    cursor.execute('SELECT nodeID, nodeName FROM NODE')
+    cursor.execute('SELECT nodeID, nodeCode FROM NODE')
     nodes = cursor.fetchall()
 
     cursor.close()

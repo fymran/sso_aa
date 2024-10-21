@@ -1,8 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
 members_bp = Blueprint('members', __name__)
 
+@members_bp.before_request
+def restrict_to_admin():
+    if 'admin' not in session:
+        flash('Please log in to access the admin panel.')
+        return redirect(url_for('login'))
+    
 @members_bp.route('/members')
 def members():
     conn = get_db_connection()

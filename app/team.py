@@ -1,9 +1,15 @@
 # app/team.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
 team_bp = Blueprint('team', __name__)
 
+@team_bp.before_request
+def restrict_to_admin():
+    if 'admin' not in session:
+        flash('Please log in to access the admin panel.')
+        return redirect(url_for('login'))
+    
 # Route to display assign team page
 @team_bp.route('/assign_team/<int:member_id>', methods=['GET', 'POST'])
 def assign_team(member_id):

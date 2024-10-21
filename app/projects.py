@@ -1,8 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
 projects_bp = Blueprint('projects', __name__)
 
+@projects_bp.before_request
+def restrict_to_admin():
+    if 'admin' not in session:
+        flash('Please log in to access the admin panel.')
+        return redirect(url_for('login'))
+    
 @projects_bp.route('/projects')
 def projects():
     conn = get_db_connection()
@@ -34,13 +40,13 @@ def add_project():
         create_table_query = f"""
             CREATE TABLE asset_{projID} (
                 assetID INTEGER PRIMARY KEY AUTO_INCREMENT,
-                assetNo VARCHAR(25),
+                assetNo VARCHAR(25) NOT NULL,
                 pbtID INTEGER,
                 address VARCHAR(255),
                 coordiNorth VARCHAR(100),
                 coordiEast VARCHAR(100),
                 postcode VARCHAR(5),
-                nodeID INTEGER,
+                nodeID INTEGER
             );
             """
 

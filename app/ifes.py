@@ -1,8 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
 ifes_bp = Blueprint('ifes', __name__)
 
+@ifes_bp.before_request
+def restrict_to_admin():
+    if 'admin' not in session:
+        flash('Please log in to access the admin panel.')
+        return redirect(url_for('login'))
+    
 # View all IFES entries
 @ifes_bp.route('/ifes')
 def ifes_list():

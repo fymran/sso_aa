@@ -1,8 +1,14 @@
-from flask import Blueprint, render_template
+from flask import session, Blueprint, render_template
 from db_config import get_db_connection
 
 visual_bp = Blueprint('visual', __name__)
 
+@visual_bp.before_request
+def restrict_to_admin():
+    if 'admin' not in session:
+        flash('Please log in to access the admin panel.')
+        return redirect(url_for('login'))
+    
 @visual_bp.route('/visual_ifes_members')
 def visual_ifes_members():
     conn = get_db_connection()

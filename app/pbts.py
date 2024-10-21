@@ -1,9 +1,15 @@
 # app/pbts.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
 pbts_bp = Blueprint('pbts', __name__)
 
+@pbts_bp.before_request
+def restrict_to_admin():
+    if 'admin' not in session:
+        flash('Please log in to access the admin panel.')
+        return redirect(url_for('login'))
+    
 @pbts_bp.route('/pbts')
 def pbts():
     conn = get_db_connection()
