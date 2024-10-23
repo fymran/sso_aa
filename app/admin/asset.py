@@ -26,7 +26,7 @@ def manage_asset():
     cursor.close()
     conn.close()
     
-    return render_template('select_project.html', projects=projects)
+    return render_template('admin/select_project.html', projects=projects)
 
 # Step 2: View assets for the selected project
 @asset_bp.route('/assets/<int:projectID>', methods=['GET'])

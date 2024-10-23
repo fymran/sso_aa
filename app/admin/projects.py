@@ -87,7 +87,7 @@ def edit_project(projID):
         project = cursor.fetchone()
         cursor.close()
         conn.close()
-        return render_template('edit_project.html', project=project)
+        return render_template('admin/edit_project.html', project=project)
 
 @projects_bp.route('/delete_project/<string:projID>', methods=['POST'])
 def delete_project(projID):
