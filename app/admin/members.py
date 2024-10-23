@@ -21,7 +21,7 @@ def members():
     cursor.close()
     conn.close()
 
-    return render_template('members.html', members=members)
+    return render_template('admin/members.html', members=members)
 
 # Add a new member
 @members_bp.route('/add_member', methods=['GET', 'POST'])
@@ -40,7 +40,7 @@ def add_member():
         flash('New member added successfully!')
         return redirect(url_for('members.members'))
 
-    return render_template('add_member.html')
+    return render_template('admin/add_member.html')
 
 # Edit a member
 @members_bp.route('/edit_member/<int:member_id>', methods=['GET', 'POST'])
@@ -64,7 +64,7 @@ def edit_member(member_id):
     cursor.close()
     conn.close()
 
-    return render_template('edit_member.html', member=member)
+    return render_template('admin/edit_member.html', member=member)
 
 # Delete a member
 @members_bp.route('/delete_member/<int:member_id>', methods=['POST'])

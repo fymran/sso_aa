@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template</title>
+</head>
+<body>
+    <h2>Ticket Escalation Details</h2>
+    <p><strong>Project:</strong> {{ project.projectName }}</p>
+    <p><strong>Product:</strong> {{ product }}</p>
+    <p><strong>Asset:</strong> {{ asset.assetName }}</p>
+    <p><strong>INC Number:</strong> {{ inc_number }}</p>
+
+    <!-- Outlook mailto link -->
+    <a href="{{ mailto_link }}" class="btn btn-primary">Open in Outlook</a>
+</body>
+</html>
