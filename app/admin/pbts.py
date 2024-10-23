@@ -1,6 +1,6 @@
 # app/pbts.py
 from flask import session, Blueprint, render_template, request, redirect, url_for, flash
-from app.core.db_config import get_db_connection
+from db_config import get_db_connection
 
 pbts_bp = Blueprint('pbts', __name__)
 
@@ -18,7 +18,7 @@ def pbts():
     pbts = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('pbts.html', pbts=pbts)
+    return render_template('admin/pbts.html', pbts=pbts)
 
 @pbts_bp.route('/add_pbt', methods=['GET', 'POST'])
 def add_pbt():
@@ -41,7 +41,7 @@ def add_pbt():
     cursor.close()
     conn.close()
 
-    return render_template('add_pbt.html')
+    return render_template('admin/add_pbt.html')
 
 @pbts_bp.route('/edit_pbt/<int:pbtID>', methods=['GET', 'POST'])
 def edit_pbt(pbtID):
@@ -69,7 +69,7 @@ def edit_pbt(pbtID):
         cursor.close()
         conn.close()
         
-        return render_template('edit_pbt.html', pbt=pbt )
+        return render_template('admin/edit_pbt.html', pbt=pbt )
     
 @pbts_bp.route('/delete_pbt/<int:pbtID>', methods=['POST'])
 def delete_pbt(pbtID):

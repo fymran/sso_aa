@@ -1,5 +1,5 @@
 from flask import session, Blueprint, render_template, request, redirect, url_for, flash
-from app.core.db_config import get_db_connection
+from db_config import get_db_connection
 
 projects_bp = Blueprint('projects', __name__)
 
@@ -17,7 +17,7 @@ def projects():
     projects = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('projects.html', projects=projects)
+    return render_template('admin/projects.html', projects=projects)
 
 @projects_bp.route('/add_project', methods=['POST'])
 def add_project():

@@ -1,5 +1,5 @@
 from flask import session, Blueprint, render_template, request, redirect, url_for, flash
-from app.core.db_config import get_db_connection
+from db_config import get_db_connection
 
 members_bp = Blueprint('members', __name__)
 

@@ -1,6 +1,6 @@
 # app/team.py
 from flask import session, Blueprint, render_template, request, redirect, url_for, flash
-from app.core.db_config import get_db_connection
+from db_config import get_db_connection
 
 team_bp = Blueprint('team', __name__)
 
@@ -42,7 +42,7 @@ def assign_team(member_id):
     cursor.close()
     conn.close()
 
-    return render_template('assign_team.html', member_id=member_id, wilayahs=wilayahs)
+    return render_template('admin/assign_team.html', member_id=member_id, wilayahs=wilayahs)
 
 # Get IFES leaders based on selected wilayah (AJAX)
 @team_bp.route('/get_ifes_leaders/<string:wilayah_id>')
@@ -90,4 +90,4 @@ def view_assignments(member_id):
     cursor.close()
     conn.close()
 
-    return render_template('view_assignments.html', member=member, assignments=assignments)
+    return render_template('admin/view_assignments.html', member=member, assignments=assignments)

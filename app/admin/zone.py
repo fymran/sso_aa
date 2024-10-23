@@ -1,5 +1,5 @@
 from flask import session, Blueprint, render_template, request, redirect, url_for, flash
-from app.core.db_config import get_db_connection
+from db_config import get_db_connection
 
 zone_bp = Blueprint('zone', __name__)
 
@@ -22,7 +22,7 @@ def zone_list():
     zone_records = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('zone.html', zones=zone_records)
+    return render_template('admin/zone.html', zones=zone_records)
 
 # Add a new Zone
 @zone_bp.route('/add_zone', methods=['GET', 'POST'])
@@ -47,7 +47,7 @@ def add_zone():
     cursor.close()
     conn.close()
 
-    return render_template('add_zone.html', wilayahs=wilayahs)
+    return render_template('admin/add_zone.html', wilayahs=wilayahs)
 
 # Edit Zone
 @zone_bp.route('/edit_zone/<int:zoneID>', methods=['GET', 'POST'])
@@ -76,7 +76,7 @@ def edit_zone(zoneID):
     cursor.close()
     conn.close()
 
-    return render_template('edit_zone.html', zone=zone, wilayahs=wilayahs)
+    return render_template('admin/edit_zone.html', zone=zone, wilayahs=wilayahs)
 
 # Delete Zone
 @zone_bp.route('/delete_zone/<int:zoneID>', methods=['POST'])

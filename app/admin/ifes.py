@@ -1,5 +1,5 @@
 from flask import session, Blueprint, render_template, request, redirect, url_for, flash
-from app.core.db_config import get_db_connection
+from db_config import get_db_connection
 
 ifes_bp = Blueprint('ifes', __name__)
 
@@ -27,7 +27,7 @@ def ifes_list():
     cursor.close()
     conn.close()
     
-    return render_template('ifes.html', ifes=ifes_records)
+    return render_template('admin/ifes.html', ifes=ifes_records)
 
 # Add a new IFES
 @ifes_bp.route('/add_ifes', methods=['GET', 'POST'])
@@ -55,7 +55,7 @@ def add_ifes():
     conn.close()
 
     # Render the form and pass the wilayah data to the template
-    return render_template('add_ifes.html', wilayahs=wilayah_records)
+    return render_template('admin/add_ifes.html', wilayahs=wilayah_records)
 
 # Edit IFES
 @ifes_bp.route('/edit_ifes/<int:ifesID>', methods=['GET', 'POST'])
@@ -84,7 +84,7 @@ def edit_ifes(ifesID):
     cursor.close()
     conn.close()
     
-    return render_template('edit_ifes.html', ifes=ifes, wilayahs=wilayah_records)
+    return render_template('admin/edit_ifes.html', ifes=ifes, wilayahs=wilayah_records)
 
 # Delete IFES
 @ifes_bp.route('/delete_ifes/<int:ifesID>', methods=['POST'])
