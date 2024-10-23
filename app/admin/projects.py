@@ -17,7 +17,7 @@ def projects():
     projects = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('projects.html', projects=projects)
+    return render_template('admin/projects.html', projects=projects)
 
 @projects_bp.route('/add_project', methods=['POST'])
 def add_project():

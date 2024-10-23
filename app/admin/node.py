@@ -27,7 +27,7 @@ def node_list():
     cursor.close()
     conn.close()
     
-    return render_template('node.html', nodes=node_records)
+    return render_template('admin/node.html', nodes=node_records)
 
 # Add a new NODE
 @node_bp.route('/add_node', methods=['GET', 'POST'])
@@ -54,7 +54,7 @@ def add_node():
     cursor.close()
     conn.close()
     
-    return render_template('add_node.html', zones=zone_records)
+    return render_template('admin/add_node.html', zones=zone_records)
 
 # Edit NODE
 @node_bp.route('/edit_node/<int:nodeID>', methods=['GET', 'POST'])
@@ -83,7 +83,7 @@ def edit_node(nodeID):
     cursor.close()
     conn.close()
     
-    return render_template('edit_node.html', node=node, zones=zone_records)
+    return render_template('admin/edit_node.html', node=node, zones=zone_records)
 
 # Delete NODE
 @node_bp.route('/delete_node/<int:nodeID>', methods=['POST'])

@@ -7,4 +7,4 @@ def index():
     if 'admin' not in session:
         flash('Please log in to access the admin dashboard.')
         return redirect(url_for('login'))
-    return render_template('admin_dashboard.html')  # Render the admin dashboard if logged in
+    return render_template('admin/admin_dashboard.html')  # Render the admin dashboard if logged in

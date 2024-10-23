@@ -22,7 +22,7 @@ def state_list():
     cursor.close()
     conn.close()
 
-    return render_template('state.html', states=state_records)
+    return render_template('admin/state.html', states=state_records)
 
 # Add a new State
 @state_bp.route('/add_state', methods=['GET', 'POST'])
@@ -40,7 +40,7 @@ def add_state():
         flash('New State added successfully!')
         return redirect(url_for('state.state_list'))
 
-    return render_template('add_state.html')
+    return render_template('admin/add_state.html')
 
 # Edit a State
 @state_bp.route('/edit_state/<string:stateCode>', methods=['GET', 'POST'])
@@ -64,7 +64,7 @@ def edit_state(stateCode):
     cursor.close()
     conn.close()
 
-    return render_template('edit_state.html', state=state)
+    return render_template('admin/edit_state.html', state=state)
 
 # Delete a State
 @state_bp.route('/delete_state/<string:stateCode>', methods=['POST'])

@@ -48,7 +48,7 @@ def asset_list(projectID):
     cursor.close()
     conn.close()
     
-    return render_template('assets.html', assets=assets, projectID=projectID)
+    return render_template('admin/assets.html', assets=assets, projectID=projectID)
 
 # Step 3: Add Asset
 @asset_bp.route('/add_asset/<int:projectID>', methods=['GET', 'POST'])
@@ -88,7 +88,7 @@ def add_asset(projectID):
     cursor.close()
     conn.close()
 
-    return render_template('add_asset.html', projectID=projectID, pbts=pbts, nodes=nodes)
+    return render_template('admin/add_asset.html', projectID=projectID, pbts=pbts, nodes=nodes)
 
 @asset_bp.route('/edit_asset/<int:projectID>/<int:assetID>', methods=['GET', 'POST'])
 def edit_asset(projectID, assetID):
@@ -135,7 +135,7 @@ def edit_asset(projectID, assetID):
     cursor.close()
     conn.close()
 
-    return render_template('edit_asset.html', asset=asset, projectID=projectID, nodes=nodes, pbts=pbts)
+    return render_template('admin/edit_asset.html', asset=asset, projectID=projectID, nodes=nodes, pbts=pbts)
 
 # Step 5: Delete Asset
 @asset_bp.route('/delete_asset/<int:projectID>/<int:assetID>', methods=['POST'])

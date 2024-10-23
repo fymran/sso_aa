@@ -1,4 +1,4 @@
-from flask import session, Blueprint, render_template
+from flask import session, Blueprint, render_template, redirect, url_for, flash
 from db_config import get_db_connection
 
 visual_bp = Blueprint('visual', __name__)
@@ -43,4 +43,4 @@ def visual_ifes_members():
         visual_data[wilayah]['ifes'] = list(visual_data[wilayah]['ifes'])
         visual_data[wilayah]['members'] = list(visual_data[wilayah]['members'])
 
-    return render_template('visual_ifes_members.html', visual_data=visual_data)
+    return render_template('admin/visual_ifes_members.html', visual_data=visual_data)

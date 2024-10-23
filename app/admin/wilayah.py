@@ -18,7 +18,7 @@ def wilayah_list():
     wilayah_records = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('wilayah.html', wilayahs=wilayah_records)
+    return render_template('admin/wilayah.html', wilayahs=wilayah_records)
 
 # Add a new Wilayah
 @wilayah_bp.route('/add_wilayah', methods=['GET', 'POST'])
@@ -45,7 +45,7 @@ def add_wilayah():
     cursor.close()
     conn.close()
 
-    return render_template('add_wilayah.html', states=state_records)
+    return render_template('admin/add_wilayah.html', states=state_records)
 
 # Edit Wilayah
 @wilayah_bp.route('/edit_wilayah/<int:wilayahID>', methods=['GET', 'POST'])
@@ -76,7 +76,7 @@ def edit_wilayah(wilayahID):
     cursor.close()
     conn.close()
 
-    return render_template('edit_wilayah.html', wilayah=wilayah, states=state_records)
+    return render_template('admin/edit_wilayah.html', wilayah=wilayah, states=state_records)
 
 # Delete Wilayah
 @wilayah_bp.route('/delete_wilayah/<int:wilayahID>', methods=['POST'])
