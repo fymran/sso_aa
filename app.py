@@ -11,27 +11,31 @@ from app.admin.wilayah import wilayah_bp
 from app.admin.zone import zone_bp
 from app.admin.node import node_bp
 from app.admin.asset import asset_bp
+from app.public.routes import public_bp
 
+# Application configuration
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
+# Constants for admin login credentials
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'admin123'
 
-# Register blueprints
-app.register_blueprint(main_bp)
-app.register_blueprint(projects_bp)
-app.register_blueprint(pbts_bp)
-app.register_blueprint(members_bp)
-app.register_blueprint(team_bp)
-app.register_blueprint(ifes_bp)
-app.register_blueprint(state_bp)
-app.register_blueprint(visual_bp)
-app.register_blueprint(wilayah_bp)
-app.register_blueprint(zone_bp)
-app.register_blueprint(node_bp)
-app.register_blueprint(asset_bp)
+# Register Blueprints
+admin_blueprints = [
+    main_bp, projects_bp, pbts_bp, members_bp, team_bp, ifes_bp,
+    state_bp, visual_bp, wilayah_bp, zone_bp, node_bp, asset_bp
+]
 
+for bp in admin_blueprints:
+    app.register_blueprint(bp)
+
+public_blueprints = [
+    public_bp
+]
+app.register_blueprint(public_bp, url_prefix='/public')
+
+# Admin Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -54,7 +58,7 @@ def logout():
     flash('You have been logged out.')
     return redirect(url_for('login'))
 
-# Protected admin route
+# Admin Dashboard
 @app.route('/admin_dashboard')
 def admin_dashboard():
     if 'admin' in session:
@@ -62,6 +66,6 @@ def admin_dashboard():
     else:
         flash('Please log in to access the admin dashboard.')
         return redirect(url_for('login'))
-    
+
 if __name__ == '__main__':
     app.run(debug=True)
