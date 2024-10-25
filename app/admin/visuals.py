@@ -8,7 +8,8 @@ def restrict_to_admin():
     if 'admin' not in session:
         flash('Please log in to access the admin panel.')
         return redirect(url_for('login'))
-    
+
+# Visualize IFES and Members Grouped by Wilayah
 @visual_bp.route('/visual_ifes_members')
 def visual_ifes_members():
     conn = get_db_connection()
@@ -16,14 +17,13 @@ def visual_ifes_members():
 
     # Query to get IFES and their members grouped by Wilayah
     query = """
-    SELECT WILAYAH.wilayahName, IFES.ifesName, MEMBER.memberEmail
-    FROM TEAM
-    JOIN IFES ON TEAM.ifesID = IFES.ifesID
-    JOIN MEMBER ON TEAM.memberID = MEMBER.memberID
-    JOIN WILAYAH ON IFES.wilayahID = WILAYAH.wilayahID
-    ORDER BY WILAYAH.wilayahName, IFES.ifesName;
+    SELECT W.wilayahName, I.ifesName, M.memberEmail
+    FROM TEAM T
+    JOIN IFES I ON T.ifesID = I.ifesID
+    JOIN MEMBER M ON T.memberID = M.memberID
+    JOIN WILAYAH W ON I.wilayahID = W.wilayahID
+    ORDER BY W.wilayahName, I.ifesName;
     """
-
     cursor.execute(query)
     data = cursor.fetchall()
 
@@ -38,9 +38,9 @@ def visual_ifes_members():
         visual_data[wilayah]['ifes'].add(ifesName)  # Group IFES leaders under each Wilayah
         visual_data[wilayah]['members'].add(memberName)  # Collect all members under the Wilayah
 
-    # Convert sets back to lists for easier template processing
+    # Convert sets to lists for easier template processing
     for wilayah in visual_data:
-        visual_data[wilayah]['ifes'] = list(visual_data[wilayah]['ifes'])
-        visual_data[wilayah]['members'] = list(visual_data[wilayah]['members'])
+        visual_data[wilayah]['ifes'] = sorted(list(visual_data[wilayah]['ifes']))  # Sort for consistency
+        visual_data[wilayah]['members'] = sorted(list(visual_data[wilayah]['members']))
 
     return render_template('admin/visual_ifes_members.html', visual_data=visual_data)

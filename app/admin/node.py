@@ -8,92 +8,72 @@ def restrict_to_admin():
     if 'admin' not in session:
         flash('Please log in to access the admin panel.')
         return redirect(url_for('login'))
-    
+
+# Helper function for database operations
+def execute_query(query, args=None, fetch=False):
+    """Executes a given SQL query and optionally fetches data."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, args or ())
+    result = cursor.fetchall() if fetch else None
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return result
+
 # View all NODE entries
 @node_bp.route('/node')
 def node_list():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    # Join the NODE and ZONE table to get zoneName
     query = """
     SELECT NODE.nodeID, NODE.nodeCode, NODE.nodeName, ZONE.zoneName 
     FROM NODE
     LEFT JOIN ZONE ON NODE.zoneID = ZONE.zoneID
     """
-    cursor.execute(query)
-    node_records = cursor.fetchall()
-    
-    cursor.close()
-    conn.close()
-    
+    node_records = execute_query(query, fetch=True)
     return render_template('admin/node.html', nodes=node_records)
 
 # Add a new NODE
 @node_bp.route('/add_node', methods=['GET', 'POST'])
 def add_node():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     if request.method == 'POST':
         nodeCode = request.form['nodeCode']
         nodeName = request.form['nodeName']
         zoneID = request.form['zoneID']
         
-        cursor.execute('INSERT INTO NODE (nodeCode, nodeName, zoneID) VALUES (%s, %s, %s)', (nodeCode, nodeName, zoneID))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        execute_query(
+            'INSERT INTO NODE (nodeCode, nodeName, zoneID) VALUES (%s, %s, %s)', 
+            (nodeCode, nodeName, zoneID)
+        )
         flash('New Node added successfully!')
         return redirect(url_for('node.node_list'))
     
-    # Fetch all zones to show in the select dropdown
-    cursor.execute('SELECT zoneID, zoneName FROM ZONE')
-    zone_records = cursor.fetchall()
-    
-    cursor.close()
-    conn.close()
-    
+    # Fetch all zones for the dropdown
+    zone_records = execute_query('SELECT zoneID, zoneName FROM ZONE', fetch=True)
     return render_template('admin/add_node.html', zones=zone_records)
 
 # Edit NODE
 @node_bp.route('/edit_node/<int:nodeID>', methods=['GET', 'POST'])
 def edit_node(nodeID):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
     if request.method == 'POST':
         nodeCode = request.form['nodeCode']
         nodeName = request.form['nodeName']
         zoneID = request.form['zoneID']
         
-        cursor.execute('UPDATE NODE SET nodeCode = %s, nodeName = %s, zoneID = %s WHERE nodeID = %s', (nodeCode, nodeName, zoneID, nodeID))
-        conn.commit()
+        execute_query(
+            'UPDATE NODE SET nodeCode = %s, nodeName = %s, zoneID = %s WHERE nodeID = %s', 
+            (nodeCode, nodeName, zoneID, nodeID)
+        )
         flash('Node updated successfully!')
         return redirect(url_for('node.node_list'))
     
-    # Fetch the node data
-    cursor.execute('SELECT nodeID, nodeCode, nodeName, zoneID FROM NODE WHERE nodeID = %s', (nodeID,))
-    node = cursor.fetchone()
-    
-    # Fetch all zone data for the select dropdown
-    cursor.execute('SELECT zoneID, zoneName FROM ZONE')
-    zone_records = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-    
+    # Fetch the node and zone data for the dropdown
+    node = execute_query('SELECT nodeID, nodeCode, nodeName, zoneID FROM NODE WHERE nodeID = %s', (nodeID,), fetch=True)[0]
+    zone_records = execute_query('SELECT zoneID, zoneName FROM ZONE', fetch=True)
     return render_template('admin/edit_node.html', node=node, zones=zone_records)
 
 # Delete NODE
 @node_bp.route('/delete_node/<int:nodeID>', methods=['POST'])
 def delete_node(nodeID):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM NODE WHERE nodeID = %s', (nodeID,))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute_query('DELETE FROM NODE WHERE nodeID = %s', (nodeID,))
     flash('Node deleted successfully!')
-    
     return redirect(url_for('node.node_list'))

@@ -8,19 +8,23 @@ def restrict_to_admin():
     if 'admin' not in session:
         flash('Please log in to access the admin panel.')
         return redirect(url_for('login'))
-    
-@members_bp.route('/members')
-def members():
+
+# Helper function
+def execute_query(query, args=None, fetch=False):
+    """Executes a given SQL query and optionally fetches data."""
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    # Fetch all member records
-    cursor.execute('SELECT * FROM MEMBER')
-    members = cursor.fetchall()
-
+    cursor.execute(query, args or ())
+    result = cursor.fetchall() if fetch else None
+    conn.commit()
     cursor.close()
     conn.close()
+    return result
 
+# View all members
+@members_bp.route('/members')
+def members():
+    members = execute_query('SELECT * FROM MEMBER', fetch=True)
     return render_template('admin/members.html', members=members)
 
 # Add a new member
@@ -28,55 +32,28 @@ def members():
 def add_member():
     if request.method == 'POST':
         email = request.form['email']
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO MEMBER (memberEmail) VALUES (%s)', (email,))
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
+        execute_query('INSERT INTO MEMBER (memberEmail) VALUES (%s)', (email,))
         flash('New member added successfully!')
         return redirect(url_for('members.members'))
-
+    
     return render_template('admin/add_member.html')
 
 # Edit a member
 @members_bp.route('/edit_member/<int:member_id>', methods=['GET', 'POST'])
 def edit_member(member_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     if request.method == 'POST':
         email = request.form.get('email')
-
         if email:
-            cursor.execute('UPDATE MEMBER SET memberEmail = %s WHERE memberID = %s', (email, member_id))
-            conn.commit()
-
+            execute_query('UPDATE MEMBER SET memberEmail = %s WHERE memberID = %s', (email, member_id))
             flash('Member updated successfully!')
             return redirect(url_for('members.members'))
 
-    cursor.execute('SELECT * FROM MEMBER WHERE memberID = %s', (member_id,))
-    member = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
+    member = execute_query('SELECT * FROM MEMBER WHERE memberID = %s', (member_id,), fetch=True)[0]
     return render_template('admin/edit_member.html', member=member)
 
 # Delete a member
 @members_bp.route('/delete_member/<int:member_id>', methods=['POST'])
 def delete_member(member_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute('DELETE FROM MEMBER WHERE memberID = %s', (member_id,))
-    conn.commit()
-
-    cursor.close()
-    conn.close()
-
+    execute_query('DELETE FROM MEMBER WHERE memberID = %s', (member_id,))
     flash('Member deleted successfully!')
     return redirect(url_for('members.members'))

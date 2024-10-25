@@ -1,43 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Ticket</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<html>
+<head><title>Request Ticket</title></head>
 <body>
-    <div class="container mt-5">
-        <h2>Request Ticket</h2>
-        <form method="POST" action="{{ url_for('public.request_ticket') }}">
-            <div class="mb-3">
-                <label for="project">Project</label>
-                <select name="project" id="project" class="form-control">
-                    {% for project in projects %}
-                        <option value="{{ project.id }}">{{ project.projectName }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="product">Product</label>
-                <select name="product" id="product" class="form-control">
-                    <option value="Smart Security & Surveillance">Smart Security & Surveillance</option>
-                    <option value="Smart Traffic Light">Smart Traffic Light</option>
-                    <option value="Smart Building">Smart Building</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="asset">Asset</label>
-                <select name="asset" id="asset" class="form-control">
-                    <!-- Populate this dynamically based on project selection -->
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="inc_number">INC Number</label>
-                <input type="text" class="form-control" id="inc_number" name="inc_number" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
+    <h1>Request Ticket</h1>
+    <form method="POST">
+        <label for="project">Project:</label>
+        <select name="project" required>
+            {% for project in projects %}
+                <option value="{{ project[0] }}">{{ project[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="pbt">PBT:</label>
+        <select name="pbt" required>
+            {% for pbt in pbts %}
+                <option value="{{ pbt[0] }}">{{ pbt[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="product">Product:</label>
+        <select name="product" required>
+            <option>Smart Security & Surveillance</option>
+            <option>Smart Traffic Light</option>
+            <option>Smart Building</option>
+        </select><br>
+
+        <label for="asset">Asset:</label>
+        <select name="asset" >
+            <!-- Asset options would be dynamically loaded based on project and PBT selections -->
+        </select><br>
+
+        <label for="inc_number">INC Number:</label>
+        <input type="text" name="inc_number" required><br>
+
+        <button onclick="generateEmail()" type="submit">Generate Email</button>
+    </form>
+    <script>
+        function generateEmail() {
+            var recipient = document.getElementById('recipient').value;
+            var subject = document.getElementById('subject').value;
+            var body = document.getElementById('body').value;
+    
+            var mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+            window.location.href = mailtoLink;
+        }
+    </script>    
 </body>
 </html>
