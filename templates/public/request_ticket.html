@@ -91,34 +91,39 @@
         }
 
         // Generate email
-        function generateEmail() {
-            let project = $('#project option:selected').text();
-            let pbt = $('#pbt option:selected').text();
-            let product = $('#product').val();
-            let incNumber = $('#inc_number').val();
-            let date = new Date().toLocaleDateString();
+        // Generate email
+function generateEmail() {
+    let project = $('#project option:selected').text();
+    let pbt = $('#pbt option:selected').text();
+    let product = $('#product').val();
+    let incNumber = $('#inc_number').val();
+    let date = new Date().toLocaleDateString();
 
-            // Dynamic subject for multiple assets
-            let assetNames = selectedAssets.map(a => a.name).join(", ");
-            let subject = `${project} CCTV : Request to create INC for assets ${assetNames} on ${date}`;
+    // Dynamic subject for multiple assets
+    let assetNames = selectedAssets.map(a => a.name).join("& ");
+    let subject = `${project} CCTV : Request to create INC CCTV ${assetNames} on (${date})`;
 
-            // Body content with each asset in tabular format
-            let body = `Please create INC ticket as per details below:\n\nReported by:\nPBT: ${pbt}\n\nAssignment:\n`;
-            selectedAssets.forEach(asset => {
-                body += `
-                | Title: ${project} / ${asset.name} /
-                | Description: ${project} / ${asset.name} /
-                | Asset: ${asset.name}
-                | Subtype: 
-                | Project Name: ${project}
-                | Account Name: ${pbt}
-                | Service: ${product}\n`;
-            });
+    // Body content with each asset in tabular format
+    let body = `Please create INC ticket as per details below:\n\nReported by:\nPBT: ${pbt}\n\n`;
+    let count = 1;
+    selectedAssets.forEach(asset => {
+        body += `
+        TT number ${count++}
+        Assignment:${asset.wilayah}
+        | Title: ${project} / ${asset.name} /ip?/problem
+        | Description: ${project} / ${asset.name} /
+        | Asset: ${asset.name}
+        | Subtype: 
+        | Project Name: ${project}
+        | Account Name: ${pbt}
+        | Service: ${product}\n`;
+    });
 
-            // Mailto link
-            let mailtoLink = `mailto:1060servicedesk@tm.com.my?cc=ssoc@tm.com.my&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.location.href = mailtoLink;
-        }
+    // Mailto link
+    let mailtoLink = `mailto:1060servicedesk@tm.com.my?cc=ssoc@tm.com.my&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+}
+
     </script>
 </body>
 </html>
