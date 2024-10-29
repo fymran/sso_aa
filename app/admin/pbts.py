@@ -9,76 +9,54 @@ def restrict_to_admin():
     if 'admin' not in session:
         flash('Please log in to access the admin panel.')
         return redirect(url_for('login'))
-    
-@pbts_bp.route('/pbts')
-def pbts():
+
+# Helper function for database operations
+def execute_query(query, args=None, fetch=False):
+    """Executes a given SQL query and optionally fetches data."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT pbtID, pbtCode, pbtName FROM PBT')
-    pbts = cursor.fetchall()
+    cursor.execute(query, args or ())
+    result = cursor.fetchall() if fetch else None
+    conn.commit()
     cursor.close()
     conn.close()
+    return result
+
+# View all PBT entries
+@pbts_bp.route('/pbts')
+def pbts():
+    pbts = execute_query('SELECT pbtID, pbtCode, pbtName FROM PBT', fetch=True)
     return render_template('admin/pbts.html', pbts=pbts)
 
+# Add a new PBT
 @pbts_bp.route('/add_pbt', methods=['GET', 'POST'])
 def add_pbt():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     if request.method == 'POST':
         pbtCode = request.form['pbtCode']
         pbtName = request.form['pbtName']
-
-        cursor.execute('INSERT INTO PBT (pbtCode, pbtName) VALUES (%s, %s)', 
-                       (pbtCode, pbtName))
-        conn.commit()
-        cursor.close()
-        conn.close()
-
+        execute_query('INSERT INTO PBT (pbtCode, pbtName) VALUES (%s, %s)', (pbtCode, pbtName))
         flash('New PBT added successfully!')
         return redirect(url_for('pbts.pbts'))
-    
-    cursor.close()
-    conn.close()
 
     return render_template('admin/add_pbt.html')
 
+# Edit PBT
 @pbts_bp.route('/edit_pbt/<int:pbtID>', methods=['GET', 'POST'])
 def edit_pbt(pbtID):
     if request.method == 'POST':
         pbtCode = request.form['pbtCode']
         pbtName = request.form['pbtName']
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('UPDATE PBT SET pbtCode=%s, pbtName=%s WHERE pbtID = %s', (pbtCode, pbtName, pbtID))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
+        execute_query('UPDATE PBT SET pbtCode=%s, pbtName=%s WHERE pbtID = %s', (pbtCode, pbtName, pbtID))
         flash('PBT updated successfully!')
-        return redirect(url_for('pbts.pbts'))  # Redirect to the PBT list page
-    else:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Fetch the PBT data
-        cursor.execute('SELECT * FROM PBT WHERE pbtID = %s', (pbtID,))
-        pbt = cursor.fetchone()
-        
-        cursor.close()
-        conn.close()
-        
-        return render_template('admin/edit_pbt.html', pbt=pbt )
+        return redirect(url_for('pbts.pbts'))
     
+    # Fetch the PBT data for editing
+    pbt = execute_query('SELECT * FROM PBT WHERE pbtID = %s', (pbtID,), fetch=True)[0]
+    return render_template('admin/edit_pbt.html', pbt=pbt)
+
+# Delete PBT
 @pbts_bp.route('/delete_pbt/<int:pbtID>', methods=['POST'])
 def delete_pbt(pbtID):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM PBT WHERE pbtID = %s', (pbtID,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
+    execute_query('DELETE FROM PBT WHERE pbtID = %s', (pbtID,))
     flash('PBT deleted successfully!')
     return redirect(url_for('pbts.pbts'))

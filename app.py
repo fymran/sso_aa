@@ -12,6 +12,7 @@ from app.admin.zone import zone_bp
 from app.admin.node import node_bp
 from app.admin.asset import asset_bp
 from app.public.routes import public_bp
+from app.public.ticket_escalation import ticket_bp
 
 # Application configuration
 app = Flask(__name__)
@@ -31,9 +32,10 @@ for bp in admin_blueprints:
     app.register_blueprint(bp)
 
 public_blueprints = [
-    public_bp
+    public_bp, ticket_bp
 ]
-app.register_blueprint(public_bp, url_prefix='/public')
+for bpp in public_blueprints:
+    app.register_blueprint(bpp)
 
 # Admin Login
 @app.route('/login', methods=['GET', 'POST'])

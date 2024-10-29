@@ -1,3 +1,4 @@
+# app/projects.py
 from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
@@ -8,32 +9,37 @@ def restrict_to_admin():
     if 'admin' not in session:
         flash('Please log in to access the admin panel.')
         return redirect(url_for('login'))
-    
-@projects_bp.route('/projects')
-def projects():
+
+# Helper function for executing queries
+def execute_query(query, args=None, fetch=False):
+    """Executes a SQL query and optionally fetches the results."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT projectID, projectCode, projectName FROM PROJECT')
-    projects = cursor.fetchall()
+    cursor.execute(query, args or ())
+    result = cursor.fetchall() if fetch else None
+    conn.commit()
     cursor.close()
     conn.close()
+    return result
+
+# View all projects
+@projects_bp.route('/projects')
+def projects():
+    projects = execute_query('SELECT projectID, projectCode, projectName FROM PROJECT', fetch=True)
     return render_template('admin/projects.html', projects=projects)
 
+# Add a new project and create its corresponding asset table
 @projects_bp.route('/add_project', methods=['POST'])
 def add_project():
     projCode = request.form['projCode']
     projName = request.form['projName']
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    try:
-        # Insert the project first
-        cursor.execute('INSERT INTO PROJECT (projectCode, projectName) VALUES (%s, %s)', (projCode, projName))
-        conn.commit()
 
-        # Check the last inserted project ID
-        cursor.execute('SELECT LAST_INSERT_ID()')
-        projID = cursor.fetchone()[0]  # This retrieves the last inserted projectID
+    try:
+        # Insert the project
+        execute_query('INSERT INTO PROJECT (projectCode, projectName) VALUES (%s, %s)', (projCode, projName))
+        
+        # Get the last inserted project ID
+        projID = execute_query('SELECT LAST_INSERT_ID()', fetch=True)[0][0]
         print(f"Project ID is {projID}")
 
         # Create the corresponding asset table for the project
@@ -48,54 +54,33 @@ def add_project():
                 postcode VARCHAR(5),
                 nodeID INTEGER
             );
-            """
-
-        cursor.execute(create_table_query)
-        conn.commit()
-
+        """
+        execute_query(create_table_query)
         flash('Project and corresponding asset table created successfully!')
     
     except Exception as e:
-        conn.rollback()
         flash(f'Error: {str(e)}')
         print(f"Error while creating project or asset table: {str(e)}")
     
-    finally:
-        cursor.close()
-        conn.close()
-
     return redirect(url_for('projects.projects'))
 
-
+# Edit project
 @projects_bp.route('/edit_project/<string:projID>', methods=['GET', 'POST'])
 def edit_project(projID):
     if request.method == 'POST':
         projCode = request.form['projCode']
         projName = request.form['projName']
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('UPDATE PROJECT SET projectCode=%s, projectName=%s WHERE projectID=%s', (projCode, projName, projID))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        execute_query('UPDATE PROJECT SET projectCode=%s, projectName=%s WHERE projectID=%s', (projCode, projName, projID))
         flash('Project updated successfully!')
         return redirect(url_for('projects.projects'))
-    else:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM PROJECT WHERE projectID = %s', (projID,))
-        project = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        return render_template('admin/edit_project.html', project=project)
 
+    # Fetch project details for editing
+    project = execute_query('SELECT * FROM PROJECT WHERE projectID = %s', (projID,), fetch=True)[0]
+    return render_template('admin/edit_project.html', project=project)
+
+# Delete project
 @projects_bp.route('/delete_project/<string:projID>', methods=['POST'])
 def delete_project(projID):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM PROJECT WHERE projectID = %s', (projID,))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute_query('DELETE FROM PROJECT WHERE projectID = %s', (projID,))
     flash('Project deleted successfully!')
     return redirect(url_for('projects.projects'))
