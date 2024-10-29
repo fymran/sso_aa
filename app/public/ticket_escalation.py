@@ -7,7 +7,7 @@ ticket_bp = Blueprint('ticket', __name__)
 def fetch_options():
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT projectID, projectCode FROM PROJECT')
+        cursor.execute('SELECT projectID, projectCode, projectName FROM PROJECT')
         projects = cursor.fetchall()
         cursor.execute('SELECT pbtID, pbtName FROM PBT')
         pbts = cursor.fetchall()

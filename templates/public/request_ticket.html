@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang>
+<html lang="en">
 <head>
     <title>Request Ticket</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>Request Ticket</h1>
-    <form method="POST">
+    
+    <form method="POST" id="ticket-form">
+        <!-- Basic ticket details -->
+        <h2>Basic Ticket Details</h2>
         <label for="project">Project:</label>
         <select name="project" id="project" required>
             {% for project in projects %}
-                <option value="{{ project[0] }}">{{ project[1] }}</option>
+                <option value="{{ project[0] }}" data-project-name="{{ project[2] }}">{{ project[1] }}</option>
             {% endfor %}
         </select><br>
 
@@ -21,109 +24,139 @@
             {% endfor %}
         </select><br>
 
-        <label for="product">Product:</label>
-        <select name="product" id="product" required>
-            <option>Smart Security & Surveillance</option>
-            <option>Smart Traffic Light</option>
-            <option>Smart Building</option>
-        </select><br>
+        <label for="reporter">Reporter:</label>
+        <input type="text" name="reporter" id="reporter" required><br>
 
-        <label for="asset">Asset:</label>
-        <select name="asset" id="asset" required></select>
-        <button type="button" onclick="addAsset()">Add Asset</button><br>
+        <!-- Asset-specific details -->
+        <h2>Asset Details</h2>
+        <div id="asset-section">
+            <label for="asset">Asset:</label>
+            <select name="asset" id="asset" required></select><br>
+
+            <label for="ip">Asset IP:</label>
+            <input type="text" name="ip" id="ip" required><br>
+
+            <label for="issue">Issue:</label>
+            <input name="issue" id="issue" required><br>
+
+            <label for="serial">Asset Serial No.:</label>
+            <input type="text" name="serial" id="serial" required><br>
+
+            <label for="subtype">Subtype:</label>
+            <select name="subtype" id="subtype" required>
+                <option value="reactive">Reactive</option>
+                <option value="non-reactive">Non-Reactive</option>
+            </select><br>
+
+            <label for="product">Product:</label>
+            <select name="product" id="product" required>
+                <option>Smart Security & Surveillance</option>
+                <option>Smart Traffic Light</option>
+                <option>Smart Building</option>
+            </select><br>
+
+            <button type="button" onclick="addAsset()">Add Asset</button><br>
+        </div>
 
         <ul id="asset-list"></ul>
-
-        <label for="inc_number">INC Number:</label>
-        <input type="text" name="inc_number" id="inc_number" required><br>
 
         <button type="button" onclick="generateEmail()">Generate Email</button>
     </form>
 
     <script>
-        // Track selected assets
-        let selectedAssets = [];
+        class AssetTicket {
+            constructor(assetId, assetName, assetIP, issue, serialNumber, subtype, product, wilayah) {
+                this.assetId = assetId;
+                this.assetName = assetName;
+                this.assetIP = assetIP;
+                this.issue = issue;
+                this.serialNumber = serialNumber;
+                this.subtype = subtype;
+                this.product = product;
+                this.wilayah = wilayah;
+            }
 
-        // Fetch assets on project and PBT change
+            toTableRow(projName, projectName, accountName, index) {
+                return `\n\nTT Number ${index + 1}: ${this.assetName} \n Assignment: IFES-${this.wilayah}\n |- Title: As below \n |- Description: ${projName} / ${this.assetName} / ${this.assetIP}/ ${this.issue}\n |- Asset: ${this.serialNumber} \n |- Subtype: ${this.subtype}\n |- Project Name: ${projectName}\n |- Account Name: ${accountName}\n |- Service: ${this.product}\n\n\n`;
+            }
+        }
+
+        let assetTickets = [];
+
+        // Fetch assets when project or PBT changes
         $('#project, #pbt').on('change', function () {
-            let project_id = $('#project').val();
-            let pbt_id = $('#pbt').val();
-            if (project_id && pbt_id) {
-                $.post("{{ url_for('ticket.fetch_assets') }}", { project_id, pbt_id }, function (data) {
-                    $('#asset').empty();
-                    data.forEach(asset => $('#asset').append(new Option(asset[1], asset[0])));
+            fetchAssets();
+        });
+
+        function fetchAssets() {
+            let projectId = $('#project').val();
+            let pbtId = $('#pbt').val();
+
+            if (projectId && pbtId) {
+                $.post("{{ url_for('ticket.fetch_assets') }}", { project_id: projectId, pbt_id: pbtId }, function (data) {
+                    updateDropdown('#asset', data);
                 });
             }
-        });
+        }
+
+        function updateDropdown(selector, items) {
+            $(selector).empty();
+            items.forEach(item => $(selector).append(new Option(item[1], item[0])));
+        }
 
         // Add asset and fetch wilayah
         function addAsset() {
             let assetId = $('#asset').val();
             let assetName = $('#asset option:selected').text();
-            let projectId = $('#project').val();  // Get the selected project ID
+            let assetIP = $('#ip').val();
+            let issue = $('#issue').val();
+            let serialNumber = $('#serial').val();
+            let subtype = $('#subtype').val();
+            let product = $('#product').val();
+            let projectId = $('#project').val();
 
-            // Ensure assetId and projectId are valid, and avoid duplicates
-            if (!assetId || !projectId || selectedAssets.some(a => a.id === assetId)) return;
+            if (!assetId || assetTickets.some(a => a.assetId === assetId)) return;
 
-            // Fetch wilayah with projectId included in the URL
             $.post(`{{ url_for('ticket.fetch_wilayah', projectID='') }}${projectId}`, { asset_id: assetId }, function (data) {
                 let wilayahName = data.wilayahName || "Unknown";
-                selectedAssets.push({ id: assetId, name: assetName, wilayah: wilayahName });
+                let assetTicket = new AssetTicket(assetId, assetName, assetIP, issue, serialNumber, subtype, product, wilayahName);
+                assetTickets.push(assetTicket);
                 updateAssetList();
             }).fail(function() {
                 alert("Error fetching wilayah.");
             });
         }
 
-
-        // Update asset list in UI
         function updateAssetList() {
             $('#asset-list').empty();
-            selectedAssets.forEach((asset, index) => {
-                $('#asset-list').append(`<li>${asset.name} (Wilayah: ${asset.wilayah}) <button onclick="removeAsset(${index})">Remove</button></li>`);
+            assetTickets.forEach((asset, index) => {
+                $('#asset-list').append(`<li>${asset.assetName} (Wilayah: ${asset.wilayah}) <button onclick="removeAsset(${index})">Remove</button></li>`);
             });
         }
 
-        // Remove asset from list
         function removeAsset(index) {
-            selectedAssets.splice(index, 1);
+            assetTickets.splice(index, 1);
             updateAssetList();
         }
 
-        // Generate email
-        // Generate email
-function generateEmail() {
-    let project = $('#project option:selected').text();
-    let pbt = $('#pbt option:selected').text();
-    let product = $('#product').val();
-    let incNumber = $('#inc_number').val();
-    let date = new Date().toLocaleDateString();
+        function generateEmail() {
+            let projName = $('#project option:selected').text();
+            let projectName = $('#project option:selected').data('project-name');
+            let accountName = $('#pbt option:selected').text();
+            let reporter = $('#reporter').val();
+            let date = new Date().toLocaleDateString();
+            let assetNames = assetTickets.map(a => a.assetName).join(" & ");
+            let subject = `${projName} CCTV: Request to create INC CCTV ${assetNames} (${date})`;
 
-    // Dynamic subject for multiple assets
-    let assetNames = selectedAssets.map(a => a.name).join("& ");
-    let subject = `${project} CCTV : Request to create INC CCTV ${assetNames} on (${date})`;
+            let body = `Please create INC ticket as per details below:\n\nReporter: ${reporter}\n\nPBT: ${accountName}\n\n\n`;
 
-    // Body content with each asset in tabular format
-    let body = `Please create INC ticket as per details below:\n\nReported by:\nPBT: ${pbt}\n\n`;
-    let count = 1;
-    selectedAssets.forEach(asset => {
-        body += `
-        TT number ${count++}
-        Assignment:${asset.wilayah}
-        | Title: ${project} / ${asset.name} /ip?/problem
-        | Description: ${project} / ${asset.name} /
-        | Asset: ${asset.name}
-        | Subtype: 
-        | Project Name: ${project}
-        | Account Name: ${pbt}
-        | Service: ${product}\n`;
-    });
+            assetTickets.forEach((asset, index) => {
+                body += asset.toTableRow(projName, projectName, accountName, index);
+            });
 
-    // Mailto link
-    let mailtoLink = `mailto:1060servicedesk@tm.com.my?cc=ssoc@tm.com.my&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-}
-
+            let mailtoLink = `mailto:1060servicedesk@tm.com.my?cc=ssoc@tm.com.my&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+        }
     </script>
 </body>
 </html>
