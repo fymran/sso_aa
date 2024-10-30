@@ -20,7 +20,7 @@
         <label for="pbt">PBT:</label>
         <select name="pbt" id="pbt" required>
             {% for pbt in pbts %}
-                <option value="{{ pbt[0] }}">{{ pbt[1] }}</option>
+                <option value="{{ pbt[0] }}" data-pbt-code={{pbt[2]}}>{{ pbt[1] }}</option>
             {% endfor %}
         </select><br>
 

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ticket Ready</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Ticket Ready</h1>
+    
+    <form method="POST" id="ticket-form">
+        <!-- Basic ticket details -->
+        <h2>Basic Ticket Details</h2>
+        <label for="project">Project:</label>
+        <select name="project" id="project" required>
+            {% for project in projects %}
+                <option value="{{ project[0] }}" data-project-name="{{ project[2] }}">{{ project[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="pbt">PBT:</label>
+        <select name="pbt" id="pbt" required>
+            {% for pbt in pbts %}
+                <option value="{{ pbt[0] }}" data-pbt-code="{{ pbt[2] }}">{{ pbt[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <!-- Asset-specific details -->
+        <h2>Asset Details</h2>
+        <div id="asset-section">
+            <label for="asset">Asset:</label>
+            <select id="asset">
+                {% for asset in assets %}
+                    <option value="{{ asset.assetID }}">
+                        {{ asset.assetNo }}
+                    </option>
+                {% endfor %}
+            </select>
+            
+            <label for="cc">Cost Centre:</label>
+            <input type="text" name="cc" id="cc" required><br>
+
+            <label for="inc">INC:</label>
+            <input type="text" name="inc" id="inc" required><br>
+
+            <label for="inc2">JA VSM:</label>
+            <input type="text" name="inc2" id="inc2" required><br>
+
+            <label for="issue">Issue:</label>
+            <input name="issue" id="issue" required><br>
+
+            <button type="button" onclick="addAsset()">Add Asset</button><br>
+        </div>
+
+        <ul id="asset-list"></ul>
+
+        <button type="button" onclick="generateEmail()">Generate Email</button>
+    </form>
+
+    <script>
+        class AssetTicket {
+            constructor(assetId, assetName, costCentre, inc, inc2, issue, postcode, state, wilayahCode, wilayah, zone, node) {
+                this.assetId = assetId;
+                this.assetName = assetName;
+                this.costCentre = costCentre;
+                this.inc = inc;
+                this.inc2 = inc2;
+                this.issue = issue;
+                this.postcode = postcode;
+                this.state = state;
+                this.wilayahCode = wilayahCode;
+                this.wilayah = wilayah;
+                this.zone = zone;
+                this.node = node;
+            }
+
+            toTableRow(projName, projectName, customer, cust, index) {
+                return `\n\nProject name:  ${projectName}(${projName}) \nCustomer: ${customer}\nCost Centre: ${this.costCentre}\n\n${this.inc}\n${projName} / ${cust} / ${this.assetName} / ${this.issue}\n${this.inc2}\nPoskod: ${this.postcode}\nTM Node: ${this.node}\nState/Wilayah: ${this.state}/ ${this.wilayah}\nZone: ZONE ${this.zone}\n\n\n`;
+            }
+        }
+
+        let assetTickets = [];
+
+        // Fetch assets when project or PBT changes
+        $('#project, #pbt').on('change', function () {
+            fetchAssets();
+        });
+
+        function fetchAssets() {
+            let projectId = $('#project').val();
+            let pbtId = $('#pbt').val();
+
+            if (projectId && pbtId) {
+                $.post("{{ url_for('ticket.fetch_assets') }}", { project_id: projectId, pbt_id: pbtId }, function (data) {
+                    updateDropdown('#asset', data);
+                });
+            }
+        }
+
+        function updateDropdown(selector, items) {
+            $(selector).empty();
+            items.forEach(item => $(selector).append(new Option(item[1], item[0])));
+        }
+
+        // Add asset and fetch wilayah
+        function addAsset() {
+            let assetId = $('#asset').val();
+            let assetName = $('#asset option:selected').text();
+            let costCentre = $('#cc').val();
+            let inc = $('#inc').val();
+            let inc2 = $('#inc2').val();
+            let issue = $('#issue').val();
+        
+            if (!assetId || assetTickets.some(a => a.assetId === assetId)) return;
+        
+            let projectId = $('#project').val();
+        
+            $.post(`{{ url_for('ticket.fetch_detail', projectID='') }}${projectId}`, { asset_id: assetId }, function (data) {
+                let wilayahCode = data.wilayahCode || "Unknown";
+                let wilayahName = data.wilayahName || "Unknown";
+                let nodeCode = data.nodeCode || "Unknown";
+                let stateName = data.stateName || "Unknown";
+                let zoneName = data.zoneName || "Unknown";
+                let postcode = data.postcode || "Unknown";
+                
+                let assetTicket = new AssetTicket(assetId, assetName, costCentre, inc, inc2, issue, postcode, stateName, wilayahCode, wilayahName, zoneName, nodeCode);
+                assetTickets.push(assetTicket);
+                updateAssetList();
+            }).fail(function() {
+                alert("Error fetching wilayah.");
+            });
+        }                
+
+        function updateAssetList() {
+            $('#asset-list').empty();
+            assetTickets.forEach((asset, index) => {
+                $('#asset-list').append(`<li>${asset.assetName} (Wilayah: ${asset.wilayah}) <button onclick="removeAsset(${index})">Remove</button></li>`);
+            });
+        }
+
+        function removeAsset(index) {
+            assetTickets.splice(index, 1);
+            updateAssetList();
+        }
+
+        function generateEmail() {
+            let projName = $('#project option:selected').text();
+            let projectName = $('#project option:selected').data('project-name');
+            let customer = $('#pbt option:selected').text();
+            let cust = $('#pbt option:selected').data('pbt-code');
+            let assetNames = assetTickets.map(a => a.assetName).join(" & ");
+            let issue = $('#issue').val();
+            let subject = `${assetTickets[0]?.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetNames} | ${issue}`;
+
+            let body = `Dear team\n\nKindly accept INC escalation\n\n`;
+
+            assetTickets.forEach((asset, index) => {
+                body += asset.toTableRow(projName, projectName, customer, cust, index);
+            });
+
+            let mailtoLink = `mailto:1060servicedesk@tm.com.my?cc=ssoc@tm.com.my&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+        }
+        document.getElementById("asset").addEventListener("change", function() {
+            let selectedOption = this.options[this.selectedIndex];
+            let assetPostcode = selectedOption.getAttribute("data-asset-postcode");
+            console.log("Selected Asset Postcode:", assetPostcode);  // Check the console output for postcode
+        });
+    </script>
+</body>
+</html>
