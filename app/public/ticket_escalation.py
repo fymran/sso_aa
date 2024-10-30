@@ -50,8 +50,7 @@ def fetch_assets():
             query = f"SELECT assetID, assetNo, postcode FROM ASSET_{project_id} WHERE pbtID = %s"
             cursor.execute(query, (pbt_id,))
             assets = cursor.fetchall()
-            # Log assets for debugging
-            print("Fetched assets:", assets)
+
         return jsonify(assets)
     except Exception as e:
         print(f"Error fetching assets: {e}")  # Or log to a file
