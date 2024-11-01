@@ -13,6 +13,7 @@ from app.admin.node import node_bp
 from app.admin.asset import asset_bp
 from app.public.routes import public_bp
 from app.public.ticket_escalation import ticket_bp
+from app.public.maps import maps_bp
 
 # Application configuration
 app = Flask(__name__)
@@ -32,7 +33,7 @@ for bp in admin_blueprints:
     app.register_blueprint(bp)
 
 public_blueprints = [
-    public_bp, ticket_bp
+    public_bp, ticket_bp, maps_bp
 ]
 for bpp in public_blueprints:
     app.register_blueprint(bpp)
