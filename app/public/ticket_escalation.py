@@ -57,7 +57,7 @@ def fetch_assets():
         return jsonify({"error": "An internal error occurred"}), 500
 
 # Fetch wilayah based on asset's nodeID through ZONE and WILAYAH tables
-@ticket_bp.route('/fetch_wilayah/<string:projectID>', methods=['POST'])
+@ticket_bp.route('/fetch_detail/<string:projectID>', methods=['POST'])
 def fetch_detail(projectID):
     asset_id = request.form.get('asset_id')
     
@@ -79,14 +79,34 @@ def fetch_detail(projectID):
             cursor.execute(query, (asset_id,))
             asset_detail = cursor.fetchone()
             
+            # Fetch all IFES emails for the wilayah and their members
+            query = f"""
+                SELECT I.ifesEmail, M.memberEmail
+                FROM IFES AS I
+                LEFT JOIN TEAM AS T ON I.ifesID = T.ifesID
+                LEFT JOIN MEMBER AS M ON T.memberID = M.memberID
+                WHERE I.wilayahID = (SELECT Z.wilayahID FROM ASSET_{projectID} AS A
+                                     JOIN NODE AS N ON A.nodeID = N.nodeID
+                                     JOIN ZONE AS Z ON N.zoneID = Z.zoneID
+                                     WHERE A.assetID = %s)
+            """
+            cursor.execute(query, (asset_id,))
+            emails = cursor.fetchall()
+
         if asset_detail:
+            # Separate IFES emails and MEMBER emails
+            ifes_emails = list(set([email[0] for email in emails if email[0]]))
+            member_emails = list(set([email[1] for email in emails if email[1]]))
+            
             return jsonify({
                 "wilayahCode": asset_detail[0],
                 "wilayahName": asset_detail[1],
                 "nodeCode": asset_detail[2],
                 "stateName": asset_detail[3],
                 "zoneName": asset_detail[4],
-                "postcode": asset_detail[5]
+                "postcode": asset_detail[5],
+                "ifesEmails": ifes_emails,
+                "memberEmails": member_emails
             })
         
         else:

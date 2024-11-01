@@ -58,7 +58,7 @@
 
     <script>
         class AssetTicket {
-            constructor(assetId, assetName, costCentre, inc, inc2, issue, postcode, state, wilayahCode, wilayah, zone, node) {
+            constructor(assetId, assetName, costCentre, inc, inc2, issue, postcode, state, wilayahCode, wilayah, zone, node, ifesEmails = [], memberEmails = []) {
                 this.assetId = assetId;
                 this.assetName = assetName;
                 this.costCentre = costCentre;
@@ -71,6 +71,8 @@
                 this.wilayah = wilayah;
                 this.zone = zone;
                 this.node = node;
+                this.ifesEmails = ifesEmails;
+                this.memberEmails = memberEmails;
             }
 
             toTableRow(projName, projectName, customer, cust, index) {
@@ -121,12 +123,14 @@
                 let stateName = data.stateName || "Unknown";
                 let zoneName = data.zoneName || "Unknown";
                 let postcode = data.postcode || "Unknown";
+                let ifesEmails = data.ifesEmails;    // Add IFES emails
+                let memberEmails = data.memberEmails; // Add Member emails
                 
-                let assetTicket = new AssetTicket(assetId, assetName, costCentre, inc, inc2, issue, postcode, stateName, wilayahCode, wilayahName, zoneName, nodeCode);
+                let assetTicket = new AssetTicket(assetId, assetName, costCentre, inc, inc2, issue, postcode, stateName, wilayahCode, wilayahName, zoneName, nodeCode, ifesEmails, memberEmails);
                 assetTickets.push(assetTicket);
                 updateAssetList();
             }).fail(function() {
-                alert("Error fetching wilayah.");
+                alert("Error fetching details.");
             });
         }                
 
@@ -151,13 +155,17 @@
             let issue = $('#issue').val();
             let subject = `${assetTickets[0]?.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetNames} | ${issue}`;
 
+            // Collect unique IFES emails and Member emails
+            let ifesEmails = [...new Set(assetTickets.flatMap(a => a.ifesEmails))].join(";");
+            let memberEmails = [...new Set(assetTickets.flatMap(a => a.memberEmails))].join(";");
+
             let body = `Dear team\n\nKindly accept INC escalation\n\n`;
 
             assetTickets.forEach((asset, index) => {
                 body += asset.toTableRow(projName, projectName, customer, cust, index);
             });
 
-            let mailtoLink = `mailto:1060servicedesk@tm.com.my?cc=ssoc@tm.com.my&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            let mailtoLink = `mailto:${ifesEmails}?cc=${memberEmails}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             window.location.href = mailtoLink;
         }
         document.getElementById("asset").addEventListener("change", function() {
