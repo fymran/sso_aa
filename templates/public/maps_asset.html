@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assets</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            vertical-align: middle;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Uniform button styles */
+        .btn-primary, .btn-info, .btn-secondary {
+            background-color: #4e90ad; /* Same background for primary and info buttons */
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: inline-block;
+            border: none; /* Remove borders for a clean look */
+        }
+
+        /* Hover effect for all buttons */
+        .btn-primary:hover, .btn-info:hover, .btn-secondary:hover {
+            background-color: #3a6f87; /* Darker shade on hover */
+        }
+
+        /* Button hover text style */
+        .btn:hover {
+            text-decoration: none;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back link and title -->
+    <a href="{{ url_for('maps.find_asset', productID=1)}}">back</a>
+    <h1>Assets for Project: {{ projectCode }}</h1>
+
+    <!-- Search Bar for Asset No -->
+    <input type="text" id="assetSearch" class="form-control search-bar" placeholder="Search by Asset No" onkeyup="filterTable()">
+
+    <!-- Search Bar for PBT -->
+    <input type="text" id="pbtSearch" class="form-control search-bar" placeholder="Search by PBT" onkeyup="filterTable()">
+    
+    <table border="1" id="assetTable">
+        <thead>
+            <tr>
+                <th>Asset No</th>
+                <th>PBT</th>
+                <th>Address</th>
+                <th>Coordi North</th>
+                <th>Coordi East</th>
+                <th>Postcode</th>
+                <th>Node</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asset in assets %}
+            <tr>
+                <td>{{ asset[1] }}</td>
+                <td>{{ asset[2] }}</td>
+                <td>{{ asset[3] }}</td>
+                <td>{{ asset[4] }}</td>
+                <td>{{ asset[5] }}</td>
+                <td>{{ asset[6] }}</td>
+                <td>{{ asset[7] }}</td>
+                <td>
+                    <!-- Navigation button to show the modal with options -->
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#navigateModal" 
+                        onclick="setNavigationAsset('{{ asset[1] }}', '{{ asset[4] }}', '{{ asset[5] }}')">
+                        Navigate
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Modal for navigation options -->
+    <div class="modal fade" id="navigateModal" tabindex="-1" role="dialog" aria-labelledby="navigateModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="navigateModalLabel">Navigate to Asset</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Choose a navigation app to navigate asset No: <strong><span id="assetNo"></span></strong></p>
+                    <a id="googleMapsLink" href="" target="_blank" class="btn btn-primary">Google Maps</a>
+                    <a id="appleMapsLink" href="" target="_blank" class="btn btn-primary">Apple Maps</a>
+                    <a id="wazeLink" href="" target="_blank" class="btn btn-primary">Waze</a>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and jQuery scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Function to filter the table based on Asset No or PBT
+        function filterTable() {
+            const assetSearchInput = document.getElementById('assetSearch').value.toUpperCase();
+            const pbtSearchInput = document.getElementById('pbtSearch').value.toUpperCase();
+            const table = document.getElementById('assetTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {  // Start from 1 to skip header row
+                const assetNoCell = rows[i].getElementsByTagName('td')[0];
+                const pbtCell = rows[i].getElementsByTagName('td')[1];
+
+                const assetNoText = assetNoCell ? assetNoCell.textContent || assetNoCell.innerText : '';
+                const pbtText = pbtCell ? pbtCell.textContent || pbtCell.innerText : '';
+
+                // If either search input matches, show the row; otherwise, hide it
+                if ((assetSearchInput === '' || assetNoText.toUpperCase().indexOf(assetSearchInput) > -1) &&
+                    (pbtSearchInput === '' || pbtText.toUpperCase().indexOf(pbtSearchInput) > -1)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+
+        // Set the asset number and update the navigation links
+        function setNavigationAsset(assetNo, coordiNorth, coordiEast) {
+            // Update the modal content with the asset number
+            document.getElementById('assetNo').textContent = assetNo;
+
+            // Set Google Maps, Apple Maps, and Waze links with coordinates
+            const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${coordiNorth},${coordiEast}`;
+            const appleMapsLink = `http://maps.apple.com/?ll=${coordiNorth},${coordiEast}`;
+            const wazeLink = `https://www.waze.com/ul?ll=${coordiNorth},${coordiEast}&navigate=yes`;
+
+            document.getElementById('googleMapsLink').href = googleMapsLink;
+            document.getElementById('appleMapsLink').href = appleMapsLink;
+            document.getElementById('wazeLink').href = wazeLink;
+        }
+
+    </script>
+</body>
+</html>
