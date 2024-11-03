@@ -8,8 +8,6 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Edit PBT</h2>
 
     <form action="/edit_pbt/{{ pbt[0] }}" method="POST">
@@ -22,7 +20,7 @@
             <input type="text" class="form-control" id="pbtName" name="pbtName" value="{{ pbt[2] }}" required>
         </div>
         <button type="submit" class="btn btn-primary">Update PBT</button>
-        <a href="/" class="btn btn-secondary">Cancel</a>
+        <a href="/pbts" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 </body>

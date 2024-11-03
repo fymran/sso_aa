@@ -8,8 +8,6 @@
 <body>
 <div class="container mt-5">
     <h2>Add New Wilayah</h2>
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <form action="{{ url_for('wilayah.add_wilayah') }}" method="POST">
         <div class="mb-3">
             <label for="wilayahCode" class="form-label">Wilayah Code</label>
@@ -28,6 +26,7 @@
             </select>
         </div>
         <button type="submit" class="btn btn-success">Add Wilayah</button>
+        <a href="/wilayah" class="btn btn-secondary">cancel</a>
     </form>    
 </div>
 </body>

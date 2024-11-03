@@ -33,26 +33,29 @@ def projects():
 def add_project():
     projCode = request.form['projCode']
     projName = request.form['projName']
+    prodID = request.form['productID']
 
     try:
         # Insert the project
-        execute_query('INSERT INTO PROJECT (projectCode, projectName) VALUES (%s, %s)', (projCode, projName))
+        execute_query('INSERT INTO PROJECT (projectCode, projectName, productID) VALUES (%s, %s, %s)', (projCode, projName, prodID))
         
-        # Get the last inserted project ID
-        projID = execute_query('SELECT LAST_INSERT_ID()', fetch=True)[0][0]
+        # Get the project ID of the newly added project
+        query = 'SELECT projectID FROM PROJECT WHERE projectCode = %s'
+        projID = execute_query(query, (projCode,), fetch=True)[0][0]
+        
         print(f"Project ID is {projID}")
 
         # Create the corresponding asset table for the project
         create_table_query = f"""
             CREATE TABLE asset_{projID} (
-                assetID INTEGER PRIMARY KEY AUTO_INCREMENT,
+                assetID INT PRIMARY KEY AUTO_INCREMENT,
                 assetNo VARCHAR(25) NOT NULL,
-                pbtID INTEGER,
+                pbtID INT,
                 address VARCHAR(255),
                 coordiNorth VARCHAR(100),
                 coordiEast VARCHAR(100),
                 postcode VARCHAR(5),
-                nodeID INTEGER
+                nodeID INT
             );
         """
         execute_query(create_table_query)

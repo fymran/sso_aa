@@ -7,8 +7,6 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Edit IFES</h2>
     <form action="{{ url_for('ifes.edit_ifes', ifesID=ifes[0]) }}" method="POST">
         <div class="mb-3">
@@ -28,6 +26,7 @@
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Update IFES</button>
+        <a href="/ifes" class="btn btn-secondary">Cancel</a>
     </form>    
 </div>
 </body>

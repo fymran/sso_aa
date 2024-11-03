@@ -44,11 +44,13 @@ def asset_list(projectID):
         LEFT JOIN NODE N ON A.nodeID = N.nodeID
     """
     with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(query)
-        assets = cursor.fetchall()
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            assets = cursor.fetchall()
+            cursor.execute('SELECT projectCode FROM PROJECT WHERE projectID = %s', (projectID,))
+            projectCode = cursor.fetchone()
 
-    return render_template('admin/assets.html', assets=assets, projectID=projectID)
+    return render_template('admin/assets.html', assets=assets, projectID=projectID, projectCode=projectCode)
 
 # Step 3: Add Asset
 @asset_bp.route('/add_asset/<int:projectID>', methods=['GET', 'POST'])

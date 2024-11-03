@@ -4,9 +4,9 @@ from db_config import get_db_connection
 maps_bp = Blueprint('maps', __name__)
 
 @maps_bp.before_request
-def restrict_to_admin():
-    if 'admin' not in session:
-        flash('Please log in to access the admin panel.')
+def restrict_to_sso():
+    if 'sso' not in session:
+        flash('Please log in to access the SSO panel.')
         return redirect(url_for('login'))
 
 # Step 1: Select Product

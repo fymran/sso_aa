@@ -7,8 +7,6 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h3>Add New Node</h3>
     <form action="{{ url_for('node.add_node') }}" method="POST">
         <div class="mb-3">
@@ -28,6 +26,7 @@
             </select>
         </div>
         <button type="submit" class="btn btn-success">Add Node</button>
+        <a href="/node" class="btn btn-secondary">cancel</a>
     </form> 
 </div>
 </body>

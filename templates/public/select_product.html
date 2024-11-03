@@ -87,13 +87,12 @@
         <form method="POST" action="{{ url_for('maps.find_product') }}">
             
             <select name="productID" id="productID" class="form-control">
-                <option>Select product</option>
                 {% for product in products %}
                 <option value="{{ product[0] }}">{{ product[1] }}</option>
                 {% endfor %}
             </select>
             <button type="submit" class="btn btn-primary">Go</button>
-            <a href="{{ url_for('public.public_main_menu') }}" class="btn btn-primary" >Back to Homepage</a>
+            <a href="{{ url_for('sso_main_menu') }}" class="btn btn-primary" >Back</a>
         </form>
     </div>
 

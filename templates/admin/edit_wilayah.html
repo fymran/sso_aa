@@ -7,8 +7,6 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Edit Wilayah</h2>
     <form action="{{ url_for('wilayah.edit_wilayah', wilayahID=wilayah[0]) }}" method="POST">
         <div class="mb-3">
@@ -29,6 +27,7 @@
             </select>
         </div>
         <button type="submit" class="btn btn-success">Update Wilayah</button>
+        <a href="/wilayah" class="btn btn-secondary">cancel</a>
     </form>    
 </div>
 </body>

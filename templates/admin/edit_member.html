@@ -8,8 +8,6 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Edit Member</h2>
     <form method="POST">
         <div class="mb-3">
@@ -17,6 +15,7 @@
             <input type="email" class="form-control" id="email" name="email" value="{{ member[1] }}" required>
         </div>
         <button type="submit" class="btn btn-primary">Update</button>
+        <a href="/members" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 </body>
