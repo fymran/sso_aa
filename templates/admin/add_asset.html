@@ -8,12 +8,10 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Add New Asset</h2>
     <form action="{{ url_for('asset.add_asset', projectID=projectID) }}" method="POST">
         <div class="mb-3">
-            <label for="assetNo" class="form-label">Asset No</label>
+            <label for="assetNo" class="form-label">Asset Code</label>
             <input type="text" class="form-control" id="assetNo" name="assetNo" required>
         </div>
         <div class="mb-3">
@@ -51,6 +49,7 @@
             </select><br>
         </div>
         <button type="submit" class="btn btn-success">Add Asset</button>
+        <a href="{{ url_for('asset.asset_list', projectID=projectID) }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 </body>

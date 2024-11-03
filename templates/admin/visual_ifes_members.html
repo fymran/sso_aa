@@ -7,10 +7,8 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>IFES & Members Grouped by Wilayah</h2>
-
+    <a href="/members" class="btn btn-secondary">back</a>
     {% for wilayah, data in visual_data.items() %}
         <div class="card mt-3">
             <div class="card-header">

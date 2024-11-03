@@ -7,11 +7,9 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Members List</h2>
-
-    <!-- Flash message
+    <a href="/admin_dashboard" class="btn btn-secondary">dashboard</a>
+    <!-- Flash message-->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <div class="alert alert-success">
@@ -19,7 +17,6 @@
         </div>
       {% endif %}
     {% endwith %}
-
     <!-- Add new member button -->
     <a href="{{ url_for('members.add_member') }}" class="btn btn-primary mb-3">Add New Member</a>
     <a href="visual_ifes_members" class="btn btn-primary mb-3">View team</a>

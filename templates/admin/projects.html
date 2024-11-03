@@ -8,9 +8,8 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Projects List</h2>
+    <a href="/admin_dashboard" class="btn btn-secondary">dashboard</a>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -45,6 +44,14 @@
         <div class="mb-3">
             <label for="projName" class="form-label">Project Name</label>
             <input type="text" class="form-control" id="projName" name="projName" required>
+        </div>
+        <div class="mb-3">
+            <label for="productID" class="form-label">Product</label>
+            <select name='productID' id='productID' required>
+                <option value=1>Smart Surveillance</option>
+                <option value=2>Smart Traffic</option>
+                <option value=3>Smart Building</option>
+            </select>
         </div>
         <button type="submit" class="btn btn-success">Add Project</button>
     </form>

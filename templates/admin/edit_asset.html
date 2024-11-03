@@ -4,43 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Asset</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
-    <h1>Edit Asset (Asset ID: {{ asset[0] }})</h1>
+<div class="container mt-5">
+    <h1>Edit Asset (Asset ID: {{ asset[1] }})</h1>
     <form method="POST" action="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0]) }}">
-        <label for="assetNo">asset No.:</label>
-        <input type="text" name="assetNo" value="{{ asset[1] }}"><br>
-
-        <label for="pbtID">PBT:</label>
-        <select class="form-control" name="pbtID">
-            {% for pbt in pbts %}
-            <option value="{{ pbt[0] }}" {% if asset[2] == pbt[0] %}selected{% endif %}>{{ pbt[1] }}</option>
-            {% endfor %}
-        </select><br>
-
-        <label for="address">Address:</label>
-        <input type="text" name="address" value="{{ asset[3] }}"><br>
-
-        <label for="coordiNorth">Coordi North:</label>
-        <input type="text" name="coordiNorth" value="{{ asset[4] }}"><br>
-
-        <label for="coordiEast">Coordi East:</label>
-        <input type="text" name="coordiEast" value="{{ asset[5] }}"><br>
-
-        <label for="postcode">Postcode:</label>
-        <input type="text" name="postcode" value="{{ asset[6] }}"><br>
-
-        <label for="nodeID">Node:</label>
-        <select class="form-control" name="nodeID">
-            <option value="" selected>N/A</option>
-            {% for node in nodes %}
-            <option value="{{ node[0] }}" {% if asset[7] == node[0] %}selected{% endif %}>{{ node[1] }}</option>
-            {% endfor %}
-        </select><br>
-
-        <button type="submit">Update Asset</button>
+        <div class="mb-3">
+            <label for="assetNo" class="form-label">asset Code:</label>
+            <input type="text" class="form-control" name="assetNo" value="{{ asset[1] }}"><br>    
+        </div>
+        <div class="mb-3">
+            <label for="pbtID" class="form-label">PBT:</label>
+            <select class="form-control" name="pbtID">
+                {% for pbt in pbts %}
+                <option value="{{ pbt[0] }}" {% if asset[2] == pbt[0] %}selected{% endif %}>{{ pbt[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Address:</label>
+            <input type="text" class="form-control" name="address" value="{{ asset[3] }}">    
+        </div>
+        <div class="mb-3">
+            <label for="coordiNorth" class="form-label">Coordi North:</label>
+            <input type="text" class="form-control" name="coordiNorth" value="{{ asset[4] }}">    
+        </div>
+        <div class="mb-3">
+            <label for="coordiEast" class="form-label">Coordi East:</label>
+            <input type="text" class="form-control" name="coordiEast" value="{{ asset[5] }}">    
+        </div>
+        <div class="mb-3">
+            <label for="postcode" class="form-label">Postcode:</label>
+            <input type="text" class="form-control" name="postcode" value="{{ asset[6] }}">    
+        </div>
+        <div class="mb-3">
+            <label for="nodeID" class="form-label">Node:</label>
+            <select class="form-control" name="nodeID">
+                <option value="" selected>N/A</option>
+                {% for node in nodes %}
+                <option value="{{ node[0] }}" {% if asset[7] == node[0] %}selected{% endif %}>{{ node[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Asset</button>
+        <a href="{{ url_for('asset.asset_list', projectID=projectID) }}" class="btn btn-secondary">Cancel</a>    </form>
     </form>
+</div>
 </body>
 </html>

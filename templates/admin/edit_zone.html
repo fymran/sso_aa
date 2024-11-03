@@ -7,8 +7,6 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h3>Edit Zone</h3>
     <form action="{{ url_for('zone.edit_zone', zoneID=zone[0]) }}" method="POST">
         <div class="mb-3">
@@ -24,6 +22,7 @@
             </select>
         </div>
         <button type="submit" class="btn btn-success">Update Zone</button>
+        <a href="/zone" class="btn btn-secondary">cancel</a>
     </form>
 </div>
 </body>

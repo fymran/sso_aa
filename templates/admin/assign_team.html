@@ -9,8 +9,6 @@
 </head>
 <body>
 <div class="container mt-5">
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Homepage</a>
-
     <h2>Assign Member to IFES Leaders</h2>
     <form method="POST" action="{{ url_for('team.assign_team', member_id=member_id) }}">
         <div class="form-group">
@@ -29,8 +27,8 @@
                 <!-- List of IFES leaders will be dynamically loaded here -->
             </div>
         </div>
-
         <button type="submit" class="btn btn-success mt-3">Confirm Assignment</button>
+        <a href="/members" class="btn btn-secondary mt-3">Cancel</a>
     </form>
 </div>
 

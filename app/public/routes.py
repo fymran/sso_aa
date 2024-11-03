@@ -1,7 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, session, flash
 
-public_bp = Blueprint('public', __name__)
+sso_bp = Blueprint('sso', __name__)
 
-@public_bp.route('/')
+@sso_bp.route('/sso_login')
 def public_main_menu():
+    if 'sso' not in session:
+        flash('Please log in to access the main menu.')
+        return redirect(url_for('login'))
     return render_template('public/public_main_menu.html')

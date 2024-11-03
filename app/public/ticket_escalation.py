@@ -1,7 +1,13 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, flash, session, redirect, url_for, logging
 from db_config import get_db_connection
 
 ticket_bp = Blueprint('ticket', __name__)
+
+@ticket_bp.before_request
+def restrict_to_sso():
+    if 'sso' not in session:
+        flash('Please log in to access the sso panel.')
+        return redirect(url_for('login'))
 
 # Helper function to fetch dropdown options
 def fetch_options():
@@ -12,11 +18,6 @@ def fetch_options():
         cursor.execute('SELECT pbtID, pbtName, pbtCode FROM PBT')
         pbts = cursor.fetchall()
     return projects, pbts
-
-# Ticket escalation main page
-@ticket_bp.route('/ticket_escalation')
-def ticket_escalation_menu():
-    return render_template('public/ticket_escalation_menu.html')
 
 # Remote ticket escalation options
 @ticket_bp.route('/ticket_escalation/remote')
@@ -53,7 +54,7 @@ def fetch_assets():
 
         return jsonify(assets)
     except Exception as e:
-        print(f"Error fetching assets: {e}")  # Or log to a file
+        logging.error(f"Error fetching assets: {e}")
         return jsonify({"error": "An internal error occurred"}), 500
 
 # Fetch wilayah based on asset's nodeID through ZONE and WILAYAH tables
@@ -92,6 +93,15 @@ def fetch_detail(projectID):
             """
             cursor.execute(query, (asset_id,))
             emails = cursor.fetchall()
+            # Fetch project product
+            query = """
+                SELECT PRODUCT.productName
+                FROM PRODUCT
+                JOIN PROJECT ON PROJECT.productID = PRODUCT.productID
+                WHERE projectID = %s
+            """
+            cursor.execute(query,(projectID,))
+            product = cursor.fetchone()
 
         if asset_detail:
             # Separate IFES emails and MEMBER emails
@@ -106,7 +116,8 @@ def fetch_detail(projectID):
                 "zoneName": asset_detail[4],
                 "postcode": asset_detail[5],
                 "ifesEmails": ifes_emails,
-                "memberEmails": member_emails
+                "memberEmails": member_emails,
+                "product": product[0] if product else None
             })
         
         else:
