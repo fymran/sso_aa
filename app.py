@@ -1,4 +1,6 @@
 from flask import Flask, session, redirect, url_for, request, render_template, flash
+from db_config import get_db_connection
+
 from app.admin.routes import admin_bp
 from app.admin.projects import projects_bp
 from app.admin.pbts import pbts_bp
@@ -19,12 +21,6 @@ from app.public.maps import maps_bp
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-# Constants for admin & sso login credentials
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'admin123'
-SSO_USERNAME = 'sso'
-SSO_PASSWORD = 'sso123'
-
 # Register Blueprints
 admin_blueprints = [
     admin_bp, projects_bp, pbts_bp, members_bp, team_bp, ifes_bp,
@@ -40,6 +36,7 @@ sso_blueprints = [
 for sso in sso_blueprints:
     app.register_blueprint(sso)
 
+
 # Admin Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -47,23 +44,34 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session['admin'] = True
-            flash('Login successful!')
-            return redirect(url_for('admin_dashboard'))
-        elif username == SSO_USERNAME and password == SSO_PASSWORD:
-            session['sso'] = True
-            flash('SSO Login Successful!')
-            return redirect(url_for('sso_main_menu'))
+        # Get the database connection
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT username, password FROM user WHERE username = %s AND password = %s", (username, password))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        # Check if user exists
+        if user:
+            if user['username'] == 'admin':
+                session['admin'] = True
+                flash('Admin login successful!')
+                return redirect(url_for('admin_dashboard'))
+            else:
+                session['sso'] = True
+                flash('SSO login successful!')
+                return redirect(url_for('sso_main_menu'))
         else:
             flash('Invalid credentials!')
             return redirect(url_for('login'))
-    
+
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     session.pop('admin', None)
+    session.pop('sso', None)
     flash('You have been logged out.')
     return redirect(url_for('login'))
 
@@ -75,13 +83,14 @@ def admin_dashboard():
     else:
         flash('Please log in to access the admin dashboard.')
         return redirect(url_for('login'))
-#SSO main menu
+
+# SSO main menu
 @app.route('/sso_main_menu')
 def sso_main_menu():
     if 'sso' in session:
         return render_template('public/sso_main_menu.html')
     else:
-        flash('Please log in to access the sso main menu.')
+        flash('Please log in to access the SSO main menu.')
         return redirect(url_for('login'))
 
 if __name__ == '__main__':
