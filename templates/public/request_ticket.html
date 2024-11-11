@@ -16,18 +16,15 @@
         <div class="mb-3">
             <label for="project" class="form-label">Project:</label>
             <select class="form-control" name="project" id="project" required>
+                <option>Select Project</option>
                 {% for project in projects %}
                     <option value="{{ project[0] }}" data-project-name="{{ project[2] }}">{{ project[1] }}</option>
                 {% endfor %}
-            </select><br>
+            </select>
         </div>
         <div class="mb-3">
             <label for="pbt" class="form-label">PBT:</label>
-            <select class="form-control" name="pbt" id="pbt" required>
-                {% for pbt in pbts %}
-                    <option value="{{ pbt[0] }}" data-pbt-code={{pbt[2]}}>{{ pbt[1] }}</option>
-                {% endfor %}
-            </select><br>
+            <select class="form-control" name="pbt" id="pbt" required></select>
         </div>
         <div class="mb-3">
             <label for="reporter" class="form-label">Reporter:</label>
@@ -85,10 +82,24 @@
 
         let assetTickets = [];
 
+        //fetchPBT to load PBTs for the selected project
+        $('#project').on('change', function () {
+            fetchPBT();
+        });
+
         // Fetch assets when project or PBT changes
         $('#project, #pbt').on('change', function () {
             fetchAssets();
         });
+        
+        function fetchPBT() {
+            let projectId = $('#project').val();
+            if (projectId) {
+                $.post("{{ url_for('ticket.fetch_pbts') }}", { project_id: projectId }, function (data) {
+                    updateDropdown('#pbt', data, "Select PBT");
+                });
+            }
+        }
 
         function fetchAssets() {
             let projectId = $('#project').val();
@@ -96,14 +107,22 @@
 
             if (projectId && pbtId) {
                 $.post("{{ url_for('ticket.fetch_assets') }}", { project_id: projectId, pbt_id: pbtId }, function (data) {
-                    updateDropdown('#asset', data);
+                    updateDropdown('#asset', data, "Select Asset");
                 });
             }
         }
-
-        function updateDropdown(selector, items) {
+        
+        function updateDropdown(selector, items, placeholderText) {
             $(selector).empty();
-            items.forEach(item => $(selector).append(new Option(item[1], item[0])));
+    
+           // Add placeholder option if provided
+            if (placeholderText) {
+                $(selector).append(new Option(placeholderText, '', true, true)).attr('disabled', false);
+            }
+
+            items.forEach(item => {
+                $(selector).append(new Option(item[1], item[0]));
+            });
         }
 
         // Add asset and fetch wilayah

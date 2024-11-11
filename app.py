@@ -93,5 +93,14 @@ def sso_main_menu():
         flash('Please log in to access the SSO main menu.')
         return redirect(url_for('login'))
 
+@app.route('/')
+def index():
+    if 'admin' in session:
+        return redirect(url_for('admin_dashboard'))
+    elif 'sso' in session:
+        return redirect(url_for('sso_main_menu'))
+    else:
+        return redirect(url_for('login'))
+
 if __name__ == '__main__':
     app.run(debug=True)

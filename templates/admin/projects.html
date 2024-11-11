@@ -16,6 +16,8 @@
                 <th>No.</th>
                 <th>Project Code</th>
                 <th>Project Name</th>
+                <th>Product</th>
+                <th>Cost Centre</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -25,6 +27,8 @@
                 <td>{{ loop.index }}
                 <td>{{ project[1] }}</td>
                 <td>{{ project[2] }}</td>
+                <td>{{ project[3] }}</td>
+                <td>{{ project[4] }}</td>
                 <td>
                     <a href="/edit_project/{{ project[0] }}" class="btn btn-primary">Edit</a>
                     <form action="{{ url_for('projects.delete_project', projID=project[0]) }}" method="POST" style="display:inline;">
@@ -47,11 +51,15 @@
         </div>
         <div class="mb-3">
             <label for="productID" class="form-label">Product</label>
-            <select name='productID' id='productID' required>
+            <select class="form-control" name='productID' id='productID' required>
                 <option value=1>Smart Surveillance</option>
                 <option value=2>Smart Traffic</option>
                 <option value=3>Smart Building</option>
             </select>
+        </div>
+        <div class="mb-3">
+            <label for="costCentre" class="form-label">Cost Centre</label>
+            <input type="text" class="form-control" id="costCentre" name="costCentre" required>
         </div>
         <button type="submit" class="btn btn-success">Add Project</button>
     </form>

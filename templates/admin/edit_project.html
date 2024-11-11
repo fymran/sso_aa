@@ -19,6 +19,18 @@
             <label for="projName" class="form-label">Project Name</label>
             <input type="text" class="form-control" id="projName" name="projName" value="{{ project[2] }}" required>
         </div>
+        <div class="mb-3">
+            <label for="productID" class="form-label">Product</label>
+            <select class="form-control" name='productID' id='productID' required>
+                <option value=1>Smart Surveillance</option>
+                <option value=2>Smart Traffic</option>
+                <option value=3>Smart Building</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="costCentre" class="form-label">Cost Centre</label>
+            <input type="text" class="form-control" id="costCentre" name="costCentre" required>
+        </div>
         <button type="submit" class="btn btn-primary">Update Project</button>
         <a href="/projects" class="btn btn-secondary">Cancel</a>
     </form>

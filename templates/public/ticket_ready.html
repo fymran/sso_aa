@@ -16,6 +16,7 @@
         <div class="mb-3">
             <label for="project" class="form-label">Project:</label>
             <select class="form-control" name="project" id="project" required>
+                <option>Select Project</option>
                 {% for project in projects %}
                     <option value="{{ project[0] }}" data-project-name="{{ project[2] }}">{{ project[1] }}</option>
                 {% endfor %}
@@ -23,27 +24,13 @@
         </div>
         <div class="mb-3">
             <label for="pbt" class="form-label">PBT:</label>
-            <select class="form-control" name="pbt" id="pbt" required>
-                {% for pbt in pbts %}
-                    <option value="{{ pbt[0] }}" data-pbt-code="{{ pbt[2] }}">{{ pbt[1] }}</option>
-                {% endfor %}
-            </select><br>
+            <select class="form-control" name="pbt" id="pbt" required></select><br>
         </div>
         <h2>Asset Details</h2>
         <div id="asset-section">
             <div class="mb-3">
                 <label for="asset" class="form-label">Asset:</label>
-                <select class="form-control" id="asset">
-                    {% for asset in assets %}
-                        <option value="{{ asset.assetID }}">
-                            {{ asset.assetNo }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="cc" class="form-label">Cost Centre:</label>
-                <input class="form-control" type="text" name="cc" id="cc" required>
+                <select name="asset" class="form-control" id="asset" required></select>
             </div>
             <div class="mb-3">
                 <label for="inc" class="form-label">INC:</label>
@@ -57,44 +44,24 @@
                 <label for="issue" class="form-label">Issue:</label>
                 <input class="form-control" name="issue" id="issue" required>
             </div>
-            <button type="button" class="btn btn-warning" onclick="addAsset()">Add Asset</button>
         </div>
-
-        <ul id="asset-list"></ul>
 
         <button type="button" class="btn btn-success" onclick="generateEmail()">Generate Email</button>
     </form>
 </div>
     <script>
-        class AssetTicket {
-            constructor(assetId, assetName, costCentre, inc, inc2, issue, postcode, state, wilayahCode, wilayah, zone, node, ifesEmails = [], memberEmails = []) {
-                this.assetId = assetId;
-                this.assetName = assetName;
-                this.costCentre = costCentre;
-                this.inc = inc;
-                this.inc2 = inc2;
-                this.issue = issue;
-                this.postcode = postcode;
-                this.state = state;
-                this.wilayahCode = wilayahCode;
-                this.wilayah = wilayah;
-                this.zone = zone;
-                this.node = node;
-                this.ifesEmails = ifesEmails;
-                this.memberEmails = memberEmails;
-            }
-
-            toTableRow(projName, projectName, customer, cust, index) {
-                return `\n\nProject name:  ${projectName}(${projName}) \nCustomer: ${customer}\nCost Centre: ${this.costCentre}\n\n${this.inc}\n${projName} / ${cust} / ${this.assetName} / ${this.issue}\n${this.inc2}\nPoskod: ${this.postcode}\nTM Node: ${this.node}\nState/Wilayah: ${this.state}/ ${this.wilayah}\nZone: ZONE ${this.zone}\n\n\n`;
+        // Event listeners to trigger data loading
+        $('#project').on('change', fetchPBT);
+        $('#project, #pbt').on('change', fetchAssets);
+        
+        function fetchPBT() {
+            let projectId = $('#project').val();
+            if (projectId) {
+                $.post("{{ url_for('ticket.fetch_pbts') }}", { project_id: projectId }, function (data) {
+                    updateDropdown('#pbt', data, "Select PBT");
+                });
             }
         }
-
-        let assetTickets = [];
-
-        // Fetch assets when project or PBT changes
-        $('#project, #pbt').on('change', function () {
-            fetchAssets();
-        });
 
         function fetchAssets() {
             let projectId = $('#project').val();
@@ -102,86 +69,58 @@
 
             if (projectId && pbtId) {
                 $.post("{{ url_for('ticket.fetch_assets') }}", { project_id: projectId, pbt_id: pbtId }, function (data) {
-                    updateDropdown('#asset', data);
+                    updateDropdown('#asset', data, "Select Asset");
                 });
             }
         }
 
-        function updateDropdown(selector, items) {
+        function updateDropdown(selector, items, placeholderText) {
             $(selector).empty();
-            items.forEach(item => $(selector).append(new Option(item[1], item[0])));
-        }
-
-        // Add asset and fetch wilayah
-        function addAsset() {
-            let assetId = $('#asset').val();
-            let assetName = $('#asset option:selected').text();
-            let costCentre = $('#cc').val();
-            let inc = $('#inc').val();
-            let inc2 = $('#inc2').val();
-            let issue = $('#issue').val();
-        
-            if (!assetId || assetTickets.some(a => a.assetId === assetId)) return;
-        
-            let projectId = $('#project').val();
-        
-            $.post(`{{ url_for('ticket.fetch_detail', projectID='') }}${projectId}`, { asset_id: assetId }, function (data) {
-                let wilayahCode = data.wilayahCode || "Unknown";
-                let wilayahName = data.wilayahName || "Unknown";
-                let nodeCode = data.nodeCode || "Unknown";
-                let stateName = data.stateName || "Unknown";
-                let zoneName = data.zoneName || "Unknown";
-                let postcode = data.postcode || "Unknown";
-                let ifesEmails = data.ifesEmails;    // Add IFES emails
-                let memberEmails = data.memberEmails; // Add Member emails
-                
-                let assetTicket = new AssetTicket(assetId, assetName, costCentre, inc, inc2, issue, postcode, stateName, wilayahCode, wilayahName, zoneName, nodeCode, ifesEmails, memberEmails);
-                assetTickets.push(assetTicket);
-                updateAssetList();
-            }).fail(function() {
-                alert("Error fetching details.");
+            if (placeholderText) {
+                $(selector).append(new Option(placeholderText, '', true, true)).attr('disabled', false);
+            }
+            items.forEach(item => {
+                $(selector).append(new Option(item[1], item[0]));
             });
-        }                
-
-        function updateAssetList() {
-            $('#asset-list').empty();
-            assetTickets.forEach((asset, index) => {
-                $('#asset-list').append(`<li>${asset.assetName} (Wilayah: ${asset.wilayah}) <button onclick="removeAsset(${index})">Remove</button></li>`);
-            });
-        }
-
-        function removeAsset(index) {
-            assetTickets.splice(index, 1);
-            updateAssetList();
         }
 
         function generateEmail() {
+            let assetId = $('#asset').val();
+            let assetName = $('#asset option:selected').text();
+            let projectId = $('#project').val();
             let projName = $('#project option:selected').text();
             let projectName = $('#project option:selected').data('project-name');
             let customer = $('#pbt option:selected').text();
             let cust = $('#pbt option:selected').data('pbt-code');
-            let assetNames = assetTickets.map(a => a.assetName).join(" & ");
+            let inc = $('#inc').val();
+            let inc2 = $('#inc2').val();
             let issue = $('#issue').val();
-            let subject = `${assetTickets[0]?.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetNames} | ${issue}`;
 
-            // Collect unique IFES emails and Member emails
-            let ifesEmails = [...new Set(assetTickets.flatMap(a => a.ifesEmails))].join(";");
-            let memberEmails = [...new Set(assetTickets.flatMap(a => a.memberEmails))].join(";");
+            // Make a fetch request to load asset details
+            $.post(`{{ url_for('ticket.fetch_detail', projectID='') }}${projectId}`, { asset_id: assetId }, function (data) {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
 
-            let body = `Dear team\n\nKindly accept INC escalation\n\n`;
+                let subject = `${data.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetName} | ${issue}`;
+                
+                // Collect IFES emails and Member emails
+                let ifesEmails = data.ifesEmails.join(";");
+                let memberEmails = data.memberEmails.join(";");
+                let costCentre = data.costCentre || "Unknown";
+                
+                let body = `Dear team\n\nKindly accept INC escalation\n\n`;
+                body += `Project name: ${projectName} (${projName})\nCustomer: ${customer}\nCost Centre: ${costCentre}\n\n`;
+                body += `${inc}\n${projName} / ${cust} / ${assetName} / ${issue}\n${inc2}\nPoskod: ${data.postcode}\n`;
+                body += `TM Node: ${data.nodeCode}\nState/Wilayah: ${data.stateName} / ${data.wilayahName}\nZone: ZONE ${data.zoneName}\n\n\n`;
 
-            assetTickets.forEach((asset, index) => {
-                body += asset.toTableRow(projName, projectName, customer, cust, index);
+                let mailtoLink = `mailto:${ifesEmails}?cc=${memberEmails}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoLink;
+            }).fail(function() {
+                alert("Error fetching details.");
             });
-
-            let mailtoLink = `mailto:${ifesEmails}?cc=${memberEmails}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.location.href = mailtoLink;
         }
-        document.getElementById("asset").addEventListener("change", function() {
-            let selectedOption = this.options[this.selectedIndex];
-            let assetPostcode = selectedOption.getAttribute("data-asset-postcode");
-            console.log("Selected Asset Postcode:", assetPostcode);  // Check the console output for postcode
-        });
     </script>
 </body>
 </html>

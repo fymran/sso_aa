@@ -25,7 +25,7 @@ def execute_query(query, args=None, fetch=False):
 # View all projects
 @projects_bp.route('/projects')
 def projects():
-    projects = execute_query('SELECT projectID, projectCode, projectName FROM PROJECT', fetch=True)
+    projects = execute_query('SELECT a.projectID, a.projectCode, a.projectName, b.productName, a.costCentre FROM PROJECT a join PRODUCT b ON a.productID = b.productID', fetch=True)
     return render_template('admin/projects.html', projects=projects)
 
 # Add a new project and create its corresponding asset table
@@ -34,10 +34,11 @@ def add_project():
     projCode = request.form['projCode']
     projName = request.form['projName']
     prodID = request.form['productID']
+    costCentre = request.form['costCentre']
 
     try:
         # Insert the project
-        execute_query('INSERT INTO PROJECT (projectCode, projectName, productID) VALUES (%s, %s, %s)', (projCode, projName, prodID))
+        execute_query('INSERT INTO PROJECT (projectCode, projectName, productID, costCentre) VALUES (%s, %s, %s, %s)', (projCode, projName, prodID, costCentre))
         
         # Get the project ID of the newly added project
         query = 'SELECT projectID FROM PROJECT WHERE projectCode = %s'
@@ -73,7 +74,9 @@ def edit_project(projID):
     if request.method == 'POST':
         projCode = request.form['projCode']
         projName = request.form['projName']
-        execute_query('UPDATE PROJECT SET projectCode=%s, projectName=%s WHERE projectID=%s', (projCode, projName, projID))
+        prodID = request.form['productID']
+        costCentre = request.form['costCentre']
+        execute_query('UPDATE PROJECT SET projectCode=%s, projectName=%s, productID=%s, costCentre=%s WHERE projectID=%s', (projCode, projName, costCentre, projID))
         flash('Project updated successfully!')
         return redirect(url_for('projects.projects'))
 

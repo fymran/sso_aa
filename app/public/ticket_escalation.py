@@ -10,14 +10,31 @@ def restrict_to_sso():
         return redirect(url_for('login'))
 
 # Helper function to fetch dropdown options
-def fetch_options():
+def fetch_projects():
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT projectID, projectCode, projectName FROM PROJECT')
         projects = cursor.fetchall()
-        cursor.execute('SELECT pbtID, pbtName, pbtCode FROM PBT')
-        pbts = cursor.fetchall()
-    return projects, pbts
+    return projects
+
+@ticket_bp.route('/fetch_pbts', methods=['POST'])
+def fetch_pbts():
+    project_id = request.form.get('project_id')
+    
+    if not project_id:
+        return jsonify({"error": "Invalid input"}), 400
+
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            query = f"SELECT DISTINCT A.pbtID, pbt.pbtName, pbt.pbtCode FROM ASSET_{project_id} A LEFT JOIN pbt ON A.pbtID = pbt.pbtID"
+            cursor.execute(query)
+            pbts = cursor.fetchall()
+            
+        return jsonify(pbts)
+    except Exception as e:
+        logging.error(f"Error fetching pbt: {e}")
+        return jsonify({"error": "An internal error occurred"}), 500
 
 # Remote ticket escalation options
 @ticket_bp.route('/ticket_escalation/remote')
@@ -27,13 +44,14 @@ def remote_ticket_menu():
 # Request Ticket process
 @ticket_bp.route('/ticket_escalation/remote/request', methods=['GET', 'POST'])
 def request_ticket():
-    projects, pbts = fetch_options()
-    return render_template('public/request_ticket.html', projects=projects, pbts=pbts)
+    projects = fetch_projects()
+    return render_template('public/request_ticket.html', projects=projects)
 
 # Ticket Ready process
 @ticket_bp.route('/ticket_escalation/remote/ready', methods=['GET', 'POST'])
 def ticket_ready():
-    projects, pbts = fetch_options()
+    projects = fetch_projects()
+    pbts = fetch_pbts()
     return render_template('public/ticket_ready.html', projects=projects, pbts=pbts)
 
 # Fetch assets based on selected project and PBT
@@ -95,13 +113,13 @@ def fetch_detail(projectID):
             emails = cursor.fetchall()
             # Fetch project product
             query = """
-                SELECT PRODUCT.productName
+                SELECT PRODUCT.productName, PROJECT.costCentre
                 FROM PRODUCT
                 JOIN PROJECT ON PROJECT.productID = PRODUCT.productID
                 WHERE projectID = %s
             """
             cursor.execute(query,(projectID,))
-            product = cursor.fetchone()
+            projectDetail = cursor.fetchone()
 
         if asset_detail:
             # Separate IFES emails and MEMBER emails
@@ -117,7 +135,8 @@ def fetch_detail(projectID):
                 "postcode": asset_detail[5],
                 "ifesEmails": ifes_emails,
                 "memberEmails": member_emails,
-                "product": product[0] if product else None
+                "product": projectDetail[0] if projectDetail else None,
+                "costCentre": projectDetail[1] if projectDetail else None
             })
         
         else:
