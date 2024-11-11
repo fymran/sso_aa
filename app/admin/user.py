@@ -31,8 +31,8 @@ def user():
 @user_bp.route('/add_user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username')
+        password = request.form.get('password')
         execute_query('INSERT INTO user (username, password) VALUES (%s, %s)', (username, password,))
         flash('New user added successfully!')
         return redirect(url_for('user.user'))
