@@ -17,6 +17,7 @@ from app.public.routes import sso_bp
 from app.public.ticket_escalation import ticket_bp
 from app.public.maps import maps_bp
 from app.admin.product import product_bp
+from app.admin.user import user_bp
 
 # Application configuration
 app = Flask(__name__)
@@ -25,7 +26,7 @@ app.secret_key = 'your_secret_key'
 # Register Blueprints
 admin_blueprints = [
     admin_bp, projects_bp, pbts_bp, members_bp, team_bp, ifes_bp,
-    state_bp, visual_bp, wilayah_bp, zone_bp, node_bp, asset_bp, product_bp
+    state_bp, visual_bp, wilayah_bp, zone_bp, node_bp, asset_bp, product_bp, user_bp
 ]
 
 for bp in admin_blueprints:
