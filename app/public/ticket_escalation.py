@@ -27,7 +27,7 @@ def fetch_pbts():
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            query = f"SELECT DISTINCT A.pbtID, pbt.pbtName, pbt.pbtCode FROM ASSET_{project_id} A LEFT JOIN pbt ON A.pbtID = pbt.pbtID"
+            query = f"SELECT DISTINCT A.pbtID, pbt.pbtName FROM ASSET_{project_id} A LEFT JOIN pbt ON A.pbtID = pbt.pbtID"
             cursor.execute(query)
             pbts = cursor.fetchall()
             
@@ -87,12 +87,13 @@ def fetch_detail(projectID):
         with get_db_connection() as conn:
             cursor = conn.cursor()
             query = f"""
-                SELECT W.wilayahCode, W.wilayahName, N.nodeCode, S.stateName, Z.zoneName, A.postcode
+                SELECT W.wilayahCode, W.wilayahName, N.nodeCode, S.stateName, Z.zoneName, A.postcode, P.pbtCode
                 FROM ASSET_{projectID} AS A
                 JOIN NODE AS N ON A.nodeID = N.nodeID
                 JOIN ZONE AS Z ON N.zoneID = Z.zoneID
                 JOIN WILAYAH AS W ON Z.wilayahID = W.wilayahID
                 JOIN STATE AS S ON W.stateCode = S.stateCode
+                JOIN PBT AS P ON A.pbtID = P.pbtID
                 WHERE A.assetID = %s
             """
             cursor.execute(query, (asset_id,))
@@ -133,6 +134,7 @@ def fetch_detail(projectID):
                 "stateName": asset_detail[3],
                 "zoneName": asset_detail[4],
                 "postcode": asset_detail[5],
+                "pbtCode" : asset_detail[6],
                 "ifesEmails": ifes_emails,
                 "memberEmails": member_emails,
                 "product": projectDetail[0] if projectDetail else None,

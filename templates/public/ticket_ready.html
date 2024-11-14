@@ -91,7 +91,6 @@
             let projName = $('#project option:selected').text();
             let projectName = $('#project option:selected').data('project-name');
             let customer = $('#pbt option:selected').text();
-            let cust = $('#pbt option:selected').data('pbt-code');
             let inc = $('#inc').val();
             let inc2 = $('#inc2').val();
             let issue = $('#issue').val();
@@ -102,7 +101,7 @@
                     alert(data.error);
                     return;
                 }
-
+                let cust = data.pbtCode;
                 let subject = `${data.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetName} | ${issue}`;
                 
                 // Collect IFES emails and Member emails
