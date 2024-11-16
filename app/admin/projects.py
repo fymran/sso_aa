@@ -76,7 +76,7 @@ def edit_project(projID):
         projName = request.form['projName']
         prodID = request.form['productID']
         costCentre = request.form['costCentre']
-        execute_query('UPDATE PROJECT SET projectCode=%s, projectName=%s, productID=%s, costCentre=%s WHERE projectID=%s', (projCode, projName, costCentre, projID))
+        execute_query('UPDATE PROJECT SET projectCode=%s, projectName=%s, productID=%s, costCentre=%s WHERE projectID=%s', (projCode, projName, prodID, costCentre, projID))
         flash('Project updated successfully!')
         return redirect(url_for('projects.projects'))
 

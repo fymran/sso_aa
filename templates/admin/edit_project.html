@@ -9,7 +9,6 @@
 <body>
 <div class="container mt-5">
     <h2>Edit Project</h2>
-    
     <form action="/edit_project/{{ project[0] }}" method="POST">
         <div class="mb-3">
             <label for="projCode" class="form-label">Project Code</label>
@@ -29,7 +28,7 @@
         </div>
         <div class="mb-3">
             <label for="costCentre" class="form-label">Cost Centre</label>
-            <input type="text" class="form-control" id="costCentre" name="costCentre" required>
+            <input type="text" class="form-control" id="costCentre" name="costCentre" >
         </div>
         <button type="submit" class="btn btn-primary">Update Project</button>
         <a href="/projects" class="btn btn-secondary">Cancel</a>

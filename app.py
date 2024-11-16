@@ -56,6 +56,7 @@ def login():
 
         # Check if user exists
         if user:
+            session['username'] = username
             if user['username'] == 'admin':
                 session['admin'] = True
                 flash('Admin login successful!')
@@ -74,6 +75,7 @@ def login():
 def logout():
     session.pop('admin', None)
     session.pop('sso', None)
+    session.pop('username',None)
     flash('You have been logged out.')
     return redirect(url_for('login'))
 
