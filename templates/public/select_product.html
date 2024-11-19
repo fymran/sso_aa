@@ -3,102 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select product</title>
-    
-    <!-- External Bootstrap CSS for consistency (optional but recommended for a modern look) -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        label {
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-primary {
-            display: block;
-            margin-bottom: 20px;
-            text-decoration: none;
-            color: white;
-            background-color: #007bff;
-            padding: 10px 15px;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Select Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-    <div class="container">
 
-        <h1>Select product</h1>
-        
-        <form method="POST" action="{{ url_for('maps.find_product') }}">
+    <!-- Include the header template -->
+    {% include 'public/sso_header.html' %}
+
+<body>
+    <div class="container mt-5 mb-3">
+        <h1>Select Product</h1>
             
-            <select name="productID" id="productID" class="form-control">
+        <form method="POST" action="{{ url_for('maps.go_product') }}" onsubmit="return validateForm()">
+            <label for="productID">Product:</label>
+            <select name="productID" id="productID" class="form-control mt-3">
+               <option value="">Select product</option> <!-- Default empty option -->
                 {% for product in products %}
-                <option value="{{ product[0] }}">{{ product[1] }}</option>
+                    <option value="{{ product[0] }}">{{ product[1] }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn btn-primary">Go</button>
-            <a href="{{ url_for('sso_main_menu') }}" class="btn btn-primary" >Back</a>
+                
+            <button type="submit" class="btn btn-primary mt-3">Next</button>
         </form>
     </div>
 
-    <!-- Optional Bootstrap JS for better form styling and functionality -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap Modal for Custom Alert -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                </div>
+                <div class="modal-body">
+                    You need to choose a product.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Form Validation -->
+    <script>
+        function validateForm() {
+            const productID = document.getElementById("productID").value;
+            if (productID === "") {
+                // Show the Bootstrap modal if no product is selected
+                $('#errorModal').modal('show');
+                return false;  // Prevent form submission
+            }
+            return true;  // Allow form submission
+        }
+    </script>
 </body>
 </html>
+

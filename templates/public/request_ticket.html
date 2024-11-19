@@ -4,64 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Ticket</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-<div class="container mt-5">
-    <h1>Request Ticket</h1>
-    <a href="{{ url_for('ticket.remote_ticket_menu') }}" class="btn btn-secondary">Back to Ticket Escalation Menu</a>
-    <form method="POST" id="ticket-form">
-        <h2>Basic Ticket Details</h2>
-        <div class="mb-3">
-            <label for="project" class="form-label">Project:</label>
-            <select class="form-control" name="project" id="project" required>
-                <option>Select Project</option>
-                {% for project in projects %}
-                    <option value="{{ project[0] }}" data-project-name="{{ project[2] }}">{{ project[1] }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="pbt" class="form-label">PBT:</label>
-            <select class="form-control" name="pbt" id="pbt" required></select>
-        </div>
-        <div class="mb-3">
-            <label for="reporter" class="form-label">Reporter:</label>
-            <input type="text" class="form-control" name="reporter" id="reporter" required>
-        </div>
-        <h2>Asset Details</h2>
-        <div id="asset-section">
-            <div class="mb-3">
-                <label for="asset" class="form-label">Asset:</label>
-                <select name="asset" class="form-control" id="asset" required></select>    
-            </div>
-            <div class="mb-3">
-                <label for="ip" class="form-label">Asset IP:</label>
-                <input type="text" class="form-control" name="ip" id="ip" required>    
-            </div>
-            <div class="mb-3">
-                <label for="issue" class="form-label">Issue:</label>
-                <input name="issue" class="form-control" id="issue" required>  
-            </div>
-            <div class="mb-3">
-                <label for="serial" class="form-label">Asset Serial No.:</label>
-                <input type="text" class="form-control" name="serial" id="serial" required>
-            </div>
-            <div class="mb-3">
-                <label for="subtype" class="form-label">Subtype:</label>
-                <select class="form-control" name="subtype" id="subtype" required>
-                    <option value="reactive">Reactive</option>
-                    <option value="non-reactive">Non-Reactive</option>
-                </select><br>
-            </div>
-            <button type="button" class="btn btn-warning" onclick="addAsset()">Add Asset</button>
-        </div>
-        <ul id="asset-list"></ul>
 
-        <button type="button" class="btn btn-success" onclick="generateEmail()">Generate Email</button>
-    </form>
+    <!-- Include the header template -->
+    {% include 'public/sso_header.html' %}
+
+<body>
+<div class="container mt-5 mb-2">
+    <h1>Request Ticket</h1>
+
+    <ul class="list-group">
+        <li class="list-group-item mt-3">
+            <form method="POST" id="ticket-form">
+                <div class="row">
+                    <!-- Left Section: Basic Ticket Details -->
+                    <div class="col-md-6">
+                        <h2>Basic Ticket Details</h2>
+                        <div class="mb-3">
+                            <label for="project" class="form-label">Project:</label>
+                            <select class="form-control" name="project" id="project" required>
+                                <option>Select Project</option>
+                                {% for project in projects %}
+                                    <option value="{{ project[0] }}" data-project-name="{{ project[2] }}">{{ project[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pbt" class="form-label">PBT:</label>
+                            <select class="form-control" name="pbt" id="pbt" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reporter" class="form-label">Reporter:</label>
+                            <input type="text" class="form-control" name="reporter" id="reporter" required>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Asset Details -->
+                    <div class="col-md-6">
+                        <h2>Asset Details</h2>
+                        <div id="asset-section">
+                            <div class="mb-3">
+                                <label for="asset" class="form-label">Asset:</label>
+                                <select name="asset" class="form-control" id="asset" required></select>    
+                            </div>
+                            <div class="mb-3">
+                                <label for="ip" class="form-label">Asset IP:</label>
+                                <input type="text" class="form-control" name="ip" id="ip" required>    
+                            </div>
+                            <div class="mb-3">
+                                <label for="issue" class="form-label">Issue:</label>
+                                <input name="issue" class="form-control" id="issue" required>  
+                            </div>
+                            <div class="mb-3">
+                                <label for="serial" class="form-label">Asset Serial Number:</label>
+                                <input type="text" class="form-control" name="serial" id="serial" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subtype" class="form-label">Subtype:</label>
+                                <select class="form-control" name="subtype" id="subtype" required>
+                                    <option value="reactive">Reactive</option>
+                                    <option value="non-reactive">Non-Reactive</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-warning" onclick="addAsset()">Add Asset</button>
+                            <button type="button" class="btn btn-success" onclick="generateEmail()">Generate Email</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </li>
+    </ul>
 </div>
+
     <script>
         class AssetTicket {
             constructor(assetId, assetName, assetIP, issue, serialNumber, subtype, product, wilayah) {

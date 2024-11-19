@@ -4,135 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assets</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background-color: #fff;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        td {
-            vertical-align: middle;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Uniform button styles */
-        .btn-primary, .btn-info, .btn-secondary {
-            background-color: #4e90ad; /* Same background for primary and info buttons */
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            display: inline-block;
-            border: none; /* Remove borders for a clean look */
-        }
-
-        /* Hover effect for all buttons */
-        .btn-primary:hover, .btn-info:hover, .btn-secondary:hover {
-            background-color: #3a6f87; /* Darker shade on hover */
-        }
-
-        /* Button hover text style */
-        .btn:hover {
-            text-decoration: none;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        .search-bar {
-            margin-bottom: 20px;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+
+    <!-- Include the header template -->
+    {% include 'public/sso_header.html' %}
+
 <body>
-
-    <!-- Back link and title -->
-    <a class="btn btn-secondary" href="{{ url_for('maps.find_asset', productID=1)}}">back</a>
+    <div class="container mt-3">
     <h1>Assets for Project: {{ projectCode }}</h1>
+    <!-- Search Bars -->
+    <div class="d-flex justify-content-center mb-3">
+        <input type="text" id="assetSearch" class="form-control search-bar mr-2" placeholder="Search by Asset No" onkeyup="filterTable()">
+        <input type="text" id="pbtSearch" class="form-control search-bar ml-2" placeholder="Search by PBT" onkeyup="filterTable()">
+    </div>
 
-    <!-- Search Bar for Asset No -->
-    <input type="text" id="assetSearch" class="form-control search-bar" placeholder="Search by Asset No" onkeyup="filterTable()">
+    <!-- Assets Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="assetTable">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Asset No</th>
+                    <th>PBT</th>
+                    <th>Address</th>
+                    <th>Postcode</th>
+                    <th>Node</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="assetTableBody">
+                {% for asset in assets %}
+                <tr>
+                    <td>{{ asset[1] }}</td>
+                    <td>{{ asset[2] }}</td>
+                    <td>{{ asset[3] }}</td>
+                    <td>{{ asset[6] }}</td>
+                    <td>{{ asset[7] }}</td>
+                    <td>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#navigateModal" 
+                            data-asset-no="{{ asset[1] }}" data-coordi-north="{{ asset[4] }}" data-coordi-east="{{ asset[5] }}" data-pbt-code="{{ asset[2] }}">
+                            Navigate
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Search Bar for PBT -->
-    <input type="text" id="pbtSearch" class="form-control search-bar" placeholder="Search by PBT" onkeyup="filterTable()">
-    
-    <table border="1" id="assetTable">
-        <thead>
-            <tr>
-                <th>Asset No</th>
-                <th>PBT</th>
-                <th>Address</th>
-                <th>Coordi North</th>
-                <th>Coordi East</th>
-                <th>Postcode</th>
-                <th>Node</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for asset in assets %}
-            <tr>
-                <td>{{ asset[1] }}</td>
-                <td>{{ asset[2] }}</td>
-                <td>{{ asset[3] }}</td>
-                <td>{{ asset[4] }}</td>
-                <td>{{ asset[5] }}</td>
-                <td>{{ asset[6] }}</td>
-                <td>{{ asset[7] }}</td>
-                <td>
-                    <!-- Navigation button to show the modal with options -->
-                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#navigateModal" 
-                        onclick="setNavigationAsset('{{ asset[1] }}', '{{ asset[4] }}', '{{ asset[5] }}')">
-                        Navigate
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Pagination Controls -->
+    <nav>
+        <ul class="pagination" id="paginationControls">
+            <!-- Pagination items will be dynamically added here -->
+        </ul>
+    </nav>
 
-    <!-- Modal for navigation options -->
+    <!-- Navigate Modal -->
     <div class="modal fade" id="navigateModal" tabindex="-1" role="dialog" aria-labelledby="navigateModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="navigateModalLabel">Navigate to Asset</h5>
+                    <h5 class="modal-title" id="navigateModalLabel">
+                        Navigate to Asset: <span id="pbtCode"></span> - <span id="assetNo"></span>
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Choose a navigation app to navigate asset No: <strong><span id="assetNo"></span></strong></p>
-                    <a id="googleMapsLink" href="" target="_blank" class="btn btn-primary">Google Maps</a>
-                    <a id="appleMapsLink" href="" target="_blank" class="btn btn-primary">Apple Maps</a>
-                    <a id="wazeLink" href="" target="_blank" class="btn btn-primary">Waze</a>
+                    <!-- Google Maps iframe -->
+                    <iframe id="googleMapFrame" width="100%" height="300" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    
+                    <!-- Navigation links -->
+                    <a id="googleMapsLink" href="#" target="_blank" class="btn btn-primary btn-block mt-2 mb-2">Google Maps</a>
+                    <a id="appleMapsLink" href="#" target="_blank" class="btn btn-primary btn-block mt-2 mb-2">Apple Maps</a>
+                    <a id="wazeLink" href="#" target="_blank" class="btn btn-primary btn-block mt-2 mb-2">Waze</a>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -147,44 +95,141 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        // Function to filter the table based on Asset No or PBT
-        function filterTable() {
-            const assetSearchInput = document.getElementById('assetSearch').value.toUpperCase();
-            const pbtSearchInput = document.getElementById('pbtSearch').value.toUpperCase();
-            const table = document.getElementById('assetTable');
-            const rows = table.getElementsByTagName('tr');
+        const rowsPerPage = 10;
+        let currentPage = 1;
+        let currentStartPage = 1;
 
-            for (let i = 1; i < rows.length; i++) {  // Start from 1 to skip header row
-                const assetNoCell = rows[i].getElementsByTagName('td')[0];
-                const pbtCell = rows[i].getElementsByTagName('td')[1];
+        function displayPage(page) {
+            const tableBody = document.getElementById("assetTableBody");
+            const rows = tableBody.getElementsByTagName("tr");
+            const totalRows = rows.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
 
-                const assetNoText = assetNoCell ? assetNoCell.textContent || assetNoCell.innerText : '';
-                const pbtText = pbtCell ? pbtCell.textContent || pbtCell.innerText : '';
+            currentPage = page;
+            for (let i = 0; i < totalRows; i++) {
+                rows[i].style.display = (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) ? "" : "none";
+            }
 
-                // If either search input matches, show the row; otherwise, hide it
-                if ((assetSearchInput === '' || assetNoText.toUpperCase().indexOf(assetSearchInput) > -1) &&
-                    (pbtSearchInput === '' || pbtText.toUpperCase().indexOf(pbtSearchInput) > -1)) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
+            updatePagination(totalPages);
+        }
+
+        function updatePagination(totalPages) {
+            const paginationControls = document.getElementById("paginationControls");
+            paginationControls.innerHTML = "";
+
+            const maxVisiblePages = 5; // Number of page links to display at a time
+            let endPage = Math.min(currentStartPage + maxVisiblePages - 1, totalPages);
+
+            // "Previous" button
+            const prevLi = document.createElement("li");
+            prevLi.classList.add("page-item");
+            prevLi.classList.toggle("disabled", currentStartPage === 1); // Disable if on the first set
+            const prevLink = document.createElement("a");
+            prevLink.classList.add("page-link");
+            prevLink.href = "#";
+            prevLink.textContent = "Previous";
+            prevLink.onclick = function (e) {
+                e.preventDefault();
+                if (currentStartPage > 1) {
+                    currentStartPage -= maxVisiblePages;
+                    displayPage(currentStartPage);
                 }
+            };
+            prevLi.appendChild(prevLink);
+            paginationControls.appendChild(prevLi);
+
+            // Page links within the visible range
+            for (let i = currentStartPage; i <= endPage; i++) {
+                const pageLi = createPaginationItem(i);
+                paginationControls.appendChild(pageLi);
+            }
+
+            // "Next" button
+            const nextLi = document.createElement("li");
+            nextLi.classList.add("page-item");
+            nextLi.classList.toggle("disabled", endPage >= totalPages); // Disable if on the last set
+            const nextLink = document.createElement("a");
+            nextLink.classList.add("page-link");
+            nextLink.href = "#";
+            nextLink.textContent = "Next";
+            nextLink.onclick = function (e) {
+                e.preventDefault();
+                if (endPage < totalPages) {
+                    currentStartPage += maxVisiblePages;
+                    displayPage(currentStartPage);
+                }
+            };
+            nextLi.appendChild(nextLink);
+            paginationControls.appendChild(nextLi);
+        }
+
+        function createPaginationItem(page) {
+            const li = document.createElement("li");
+            li.classList.add("page-item");
+            if (page === currentPage) li.classList.add("active");
+
+            const a = document.createElement("a");
+            a.classList.add("page-link");
+            a.href = "#";
+            a.textContent = page;
+            a.onclick = function (e) {
+                e.preventDefault();
+                displayPage(page);
+            };
+
+            li.appendChild(a);
+            return li;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            displayPage(currentPage);
+        });
+
+        function filterTable() {
+            const assetSearch = document.getElementById("assetSearch").value.toLowerCase();
+            const pbtSearch = document.getElementById("pbtSearch").value.toLowerCase();
+            const tableBody = document.getElementById("assetTableBody");
+            const rows = tableBody.getElementsByTagName("tr");
+    
+            for (let i = 0; i < rows.length; i++) {
+                const assetNo = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+                const pbt = rows[i].getElementsByTagName("td")[1].textContent.toLowerCase();
+    
+                // Display rows that match both search fields
+                rows[i].style.display = (assetNo.includes(assetSearch) && pbt.includes(pbtSearch)) ? "" : "none";
             }
         }
+    
+        // Pagination update when filters are applied
+        document.getElementById("assetSearch").addEventListener("input", function() {
+            displayPage(1);
+        });
+        document.getElementById("pbtSearch").addEventListener("input", function() {
+            displayPage(1);
+        });
+        
+        // Triggered when the navigateModal is shown
+        $('#navigateModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const assetNo = button.data('asset-no');
+            const pbtCode = button.data('pbt-code');
+            const coordiNorth = button.data('coordi-north');
+            const coordiEast = button.data('coordi-east');
 
-        // Set the asset number and update the navigation links
-        function setNavigationAsset(assetNo, coordiNorth, coordiEast) {
-            // Update the modal content with the asset number
+            // Display asset number
             document.getElementById('assetNo').textContent = assetNo;
+            document.getElementById('pbtCode').textContent = pbtCode;
 
-            // Set Google Maps, Apple Maps, and Waze links with coordinates
-            const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${coordiNorth},${coordiEast}`;
-            const appleMapsLink = `http://maps.apple.com/?ll=${coordiNorth},${coordiEast}`;
-            const wazeLink = `https://www.waze.com/ul?ll=${coordiNorth},${coordiEast}&navigate=yes`;
+            // Set Google Maps iframe source using coordinates
+            const googleMapFrame = document.getElementById('googleMapFrame');
+            googleMapFrame.src = `https://www.google.com/maps?q=${coordiNorth},${coordiEast}&output=embed`;
 
-            document.getElementById('googleMapsLink').href = googleMapsLink;
-            document.getElementById('appleMapsLink').href = appleMapsLink;
-            document.getElementById('wazeLink').href = wazeLink;
-        }
+
+            // Set navigation links
+            document.getElementById('googleMapsLink').href = `https://www.google.com/maps/search/?api=1&query=${coordiNorth},${coordiEast}`;
+            document.getElementById('appleMapsLink').href = `http://maps.apple.com/?ll=${coordiNorth},${coordiEast}`;
+            document.getElementById('wazeLink').href = `https://www.waze.com/ul?ll=${coordiNorth},${coordiEast}&navigate=yes`;
+        });
 
     </script>
 </body>
