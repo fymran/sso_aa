@@ -10,8 +10,8 @@ def restrict_to_sso():
         return redirect(url_for('login'))
 
 # Step 1: Select Product
-@maps_bp.route('/find_product', methods=['GET', 'POST'])
-def find_product():
+@maps_bp.route('/go_product', methods=['GET', 'POST'])
+def go_product():
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -27,7 +27,7 @@ def find_product():
         if productID == 1:
             return redirect(url_for('maps.find_asset', productID=productID))
         else:
-            return redirect(url_for('maps.find_product', productID=productID))
+            return redirect(url_for('maps.go_product', productID=productID))
     
     cursor.close()
     conn.close()
