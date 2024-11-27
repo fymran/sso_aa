@@ -1,61 +1,81 @@
-<!-- header.html -->
-<header>
-    <nav class="navbar navbar-expand custom-bg">
-        <div class="container mt-2 mb-2">
-            <!-- Logo or Brand Name -->
-            <h2>Welcome {{ session['username'] }}</h2>
-            
-            <!-- Navbar Toggle for Mobile View -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Navbar Links -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Dropdown Menu -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Menu
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/admin_dashboard">Home</a></li>
-                            <li><a class="dropdown-item" href="/projects">Project</a></li>
-                            <li><a class="dropdown-item" href="/pbts">PBT</a></li>
-                            <li><a class="dropdown-item" href="/ifes">IFES</a></li>
-                            <li><a class="dropdown-item" href="/members">Member</a></li>
-                            <li><a class="dropdown-item" href="/state">State</a></li>
-                            <li><a class="dropdown-item" href="/wilayah">Wilyah</a></li>
-                            <li><a class="dropdown-item" href="/zone">Zone</a></li>
-                            <li><a class="dropdown-item" href="/node">Node</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('asset.manage_asset') }}">Asset</a></li>
-                            <li><a class="dropdown-item" href="/product">Product</a></li>
-                            <li><a class="dropdown-item" href="/user">User</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Logout Link -->
-                    <li class="nav-item ">
-                        <a class="nav-link text-dark" href="{{ url_for('logout') }}" onclick="confirmLogout(event)">Logout</a>
-                    </li>
-                </ul>
-            </div>
+<!-- templates/header.html -->
+<div class="container-fluid bg-primary py-3 hstack gap-3 sticky-top">
+    <div class="">
+        <a class="btn btn-primary" data-bs-toggle="offcanvas" href="#offcanvasAdminMenu" role="button" aria-controls="offcanvasAdminMenu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                ::before
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"></path>
+            </svg>
+        </a>
+    </div>
+    <div class="">
+        <a href="/admin_dashboard">
+            <h4 class="text-light">Welcome, {{ session['username'] }}</h4>
+        </a>
+    </div>
+    <div class="ms-auto">
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasAdminMenu" aria-labelledby="offcanvasAdminMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasAdminmenuLabel">Admin Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-    </nav>
-</header>
-<style>
-    .custom-bg {
-        background-color: #d5d4d5; /* Adjust the hex color code for your desired shade */
-    }
-    
-</style>
-<script>
-    function confirmLogout(event) {
-        // Display a confirmation dialog
-        const isConfirmed = confirm("Are you sure you want to logout?");
-        if (!isConfirmed) {
-            // Prevent the default action if the user cancels
-            event.preventDefault();
-        }
-    }
-</script>
+        <div class="offcanvas-body">
+            <p>Select a table to manage:</p>
+        <ul class="list-group">
+            <li class="list-group-item">
+                <a href="/projects">Manage Projects</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/pbts">Manage PBTs</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/ifes">Manage IFES</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/members">Manage Members</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/state">Manage States</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/wilayah">Manage Wilayahs</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/zone">Manage Zones</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/node">Manage Nodes</a>
+            </li>
+            <li class="list-group-item">
+                <a href="{{ url_for('asset.manage_asset') }}">Manage Assets</a>
+            </li>
+            <li class="list-group-item">
+                <a href="/user">Manage User</a>
+            </li>
+        </ul>
+        </div>
+    </div>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+          Toggle width collapse
+        </button>
+      <div style="min-height: 120px;">
+        <div class="collapse collapse-horizontal" id="collapseWidthExample">
+          <div class="card card-body" style="width: 300px;">
+            This is some placeholder content for a horizontal collapse. It's hidden by default and shown when triggered.
+          </div>
+        </div>
+      </div>
+      
+      <div class="container text-center">
+        <div class="row align-items-start">
+          <div class="col">
+            One of three columns
+          </div>
+          <div class="col">
+            One of three columns
+          </div>
+        </div>
+      </div>
+</div>
