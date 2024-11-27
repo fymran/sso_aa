@@ -1,23 +1,23 @@
 from flask import Flask, session, redirect, url_for, request, render_template, flash
 from db_config import get_db_connection
 
-from app.admin.routes import admin_bp
-from app.admin.projects import projects_bp
-from app.admin.pbts import pbts_bp
-from app.admin.ifes import ifes_bp
-from app.admin.members import members_bp
-from app.admin.team import team_bp
-from app.admin.state import state_bp
-from app.admin.visuals import visual_bp
-from app.admin.wilayah import wilayah_bp
-from app.admin.zone import zone_bp
-from app.admin.node import node_bp
-from app.admin.asset import asset_bp
-from app.public.routes import sso_bp
-from app.public.ticket_escalation import ticket_bp
-from app.public.maps import maps_bp
-from app.admin.product import product_bp
-from app.admin.user import user_bp
+from pythoncode.admin.routes import admin_bp
+from pythoncode.admin.projects import projects_bp
+from pythoncode.admin.pbts import pbts_bp
+from pythoncode.admin.ifes import ifes_bp
+from pythoncode.admin.members import members_bp
+from pythoncode.admin.team import team_bp
+from pythoncode.admin.state import state_bp
+from pythoncode.admin.visuals import visual_bp
+from pythoncode.admin.wilayah import wilayah_bp
+from pythoncode.admin.zone import zone_bp
+from pythoncode.admin.node import node_bp
+from pythoncode.admin.asset import asset_bp
+from pythoncode.public.routes import sso_bp
+from pythoncode.public.ticket_escalation import ticket_bp
+from pythoncode.public.maps import maps_bp
+from pythoncode.admin.product import product_bp
+from pythoncode.admin.user import user_bp
 
 # Application configuration
 app = Flask(__name__)
