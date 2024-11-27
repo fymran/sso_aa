@@ -54,6 +54,13 @@ def ticket_ready():
     pbts = fetch_pbts()
     return render_template('public/ticket_ready.html', projects=projects, pbts=pbts)
 
+# Ticket Ready process
+@ticket_bp.route('/ticket_escalation/remote/5g', methods=['GET', 'POST'])
+def ticket_5g():
+    projects = fetch_projects()
+    pbts = fetch_pbts()
+    return render_template('public/ticket_5g.html', projects=projects, pbts=pbts)
+
 # Fetch assets based on selected project and PBT
 @ticket_bp.route('/fetch_assets', methods=['POST'])
 def fetch_assets():
