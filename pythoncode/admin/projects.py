@@ -39,11 +39,11 @@ def add_project():
     try:
         # Insert the project
         execute_query('INSERT INTO PROJECT (projectCode, projectName, productID, costCentre) VALUES (%s, %s, %s, %s)', (projCode, projName, prodID, costCentre))
-        
+
         # Get the project ID of the newly added project
         query = 'SELECT projectID FROM PROJECT WHERE projectCode = %s'
         projID = execute_query(query, (projCode,), fetch=True)[0][0]
-        
+
         print(f"Project ID is {projID}")
 
         # Create the corresponding asset table for the project
@@ -61,11 +61,11 @@ def add_project():
         """
         execute_query(create_table_query)
         flash('Project and corresponding asset table created successfully!')
-    
+
     except Exception as e:
         flash(f'Error: {str(e)}')
         print(f"Error while creating project or asset table: {str(e)}")
-    
+
     return redirect(url_for('projects.projects'))
 
 # Edit project

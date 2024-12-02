@@ -20,17 +20,17 @@ def fetch_projects():
 @ticket_bp.route('/fetch_pbts', methods=['POST'])
 def fetch_pbts():
     project_id = request.form.get('project_id')
-    
+
     if not project_id:
         return jsonify({"error": "Invalid input"}), 400
 
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            query = f"SELECT DISTINCT A.pbtID, pbt.pbtName FROM ASSET_{project_id} A LEFT JOIN pbt ON A.pbtID = pbt.pbtID"
+            query = f"SELECT DISTINCT A.pbtID, PBT.pbtName FROM asset_{project_id} A LEFT JOIN PBT ON A.pbtID = PBT.pbtID"
             cursor.execute(query)
             pbts = cursor.fetchall()
-            
+
         return jsonify(pbts)
     except Exception as e:
         logging.error(f"Error fetching pbt: {e}")
@@ -59,14 +59,14 @@ def ticket_ready():
 def fetch_assets():
     project_id = request.form.get('project_id')
     pbt_id = request.form.get('pbt_id')
-    
+
     if not project_id or not pbt_id:
         return jsonify({"error": "Invalid input"}), 400
 
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            query = f"SELECT assetID, assetNo, postcode FROM ASSET_{project_id} WHERE pbtID = %s"
+            query = f"SELECT assetID, assetNo, postcode FROM asset_{project_id} WHERE pbtID = %s"
             cursor.execute(query, (pbt_id,))
             assets = cursor.fetchall()
 
@@ -79,7 +79,7 @@ def fetch_assets():
 @ticket_bp.route('/fetch_detail/<string:projectID>', methods=['POST'])
 def fetch_detail(projectID):
     asset_id = request.form.get('asset_id')
-    
+
     if not asset_id:
         return jsonify({"error": "Asset ID is required"}), 400
 
@@ -88,7 +88,7 @@ def fetch_detail(projectID):
             cursor = conn.cursor()
             query = f"""
                 SELECT W.wilayahCode, W.wilayahName, N.nodeCode, S.stateName, Z.zoneName, A.postcode, P.pbtCode
-                FROM ASSET_{projectID} AS A
+                FROM asset_{projectID} AS A
                 JOIN NODE AS N ON A.nodeID = N.nodeID
                 JOIN ZONE AS Z ON N.zoneID = Z.zoneID
                 JOIN WILAYAH AS W ON Z.wilayahID = W.wilayahID
@@ -98,14 +98,14 @@ def fetch_detail(projectID):
             """
             cursor.execute(query, (asset_id,))
             asset_detail = cursor.fetchone()
-            
+
             # Fetch all IFES emails for the wilayah and their members
             query = f"""
                 SELECT I.ifesEmail, M.memberEmail
                 FROM IFES AS I
                 LEFT JOIN TEAM AS T ON I.ifesID = T.ifesID
                 LEFT JOIN MEMBER AS M ON T.memberID = M.memberID
-                WHERE I.wilayahID = (SELECT Z.wilayahID FROM ASSET_{projectID} AS A
+                WHERE I.wilayahID = (SELECT Z.wilayahID FROM asset_{projectID} AS A
                                      JOIN NODE AS N ON A.nodeID = N.nodeID
                                      JOIN ZONE AS Z ON N.zoneID = Z.zoneID
                                      WHERE A.assetID = %s)
@@ -126,7 +126,7 @@ def fetch_detail(projectID):
             # Separate IFES emails and MEMBER emails
             ifes_emails = list(set([email[0] for email in emails if email[0]]))
             member_emails = list(set([email[1] for email in emails if email[1]]))
-            
+
             return jsonify({
                 "wilayahCode": asset_detail[0],
                 "wilayahName": asset_detail[1],
@@ -140,9 +140,9 @@ def fetch_detail(projectID):
                 "product": projectDetail[0] if projectDetail else None,
                 "costCentre": projectDetail[1] if projectDetail else None
             })
-        
+
         else:
             return jsonify({"error": "asset detail not found"}), 404
-        
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
