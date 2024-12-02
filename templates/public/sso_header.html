@@ -1,45 +1,48 @@
-<!-- header.html -->
-<header>
-    <nav class="navbar navbar-expand-lg custom-bg">
-        <div class="container mt-2 mb-2">
-            <!-- Logo or Brand Name -->
-            <h2>Welcome {{ session['username'] }}</h2>
-            
-            <!-- Navbar Toggle for Mobile View -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<div class="container-fluid bg-secondary hstack gap-3 sticky-top" style="height: 80px; line-height: 80px;">
+    <!-- Offcanvas Menu Button -->
+    <div class="">
+        <a class="btn btn-secondary" data-bs-toggle="offcanvas" href="#offcanvasSSOMenu" role="button" aria-controls="offcanvasSSOMenu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"></path>
+            </svg>
+        </a>
+    </div>
 
-            <!-- Navbar Links -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Dropdown Menu -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Menu
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/sso_main_menu">Home</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('ticket.remote_ticket_menu') }}">Ticket</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('maps.go_product') }}">Maps</a></li>
-                        </ul>
-                    </li>
+    <!-- Welcome Message -->
+    <div class="bg-secondary">
+        <a href="/sso_main_menu">
+            <h4 class="text-light">Welcome, {{ session['username'] }}</h4>
+        </a>
+    </div>
 
-                    <!-- Logout Link -->
-                    <li class="nav-item ">
-                        <a class="nav-link text-dark" href="{{ url_for('logout') }}" onclick="confirmLogout(event)">Logout</a>
-                    </li>
-                </ul>
-            </div>
+    <!-- Logout Button -->
+    <div class="ms-auto">
+        <a href="{{ url_for('logout') }}" class="btn btn-danger" onclick="confirmLogout(event)" >Logout</a>
+    </div>
+
+    <!-- Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasSSOMenu" aria-labelledby="offcanvasSSOMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasSSOMenuLabel">SSO Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-    </nav>
-</header>
-<style>
-    .custom-bg {
-        background-color: #d5d4d5; /* Adjust the hex color code for your desired shade */
-    }
-    
-</style>
+        <div class="offcanvas-body">
+            <p>Select an option:</p>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="/sso_main_menu">Home</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="{{ url_for('ticket.remote_ticket_menu') }}">Ticket Escalation</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="{{ url_for('maps.go_product') }}">Maps</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <script>
     function confirmLogout(event) {
         // Display a confirmation dialog
