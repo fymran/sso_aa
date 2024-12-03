@@ -33,7 +33,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="pbt" class="form-label">PBT:</label>
+                            <label for="pbt" class="form-label">Customer:</label>
                             <select class="form-control" name="pbt" id="pbt" required></select>
                         </div>
                         <div class="mb-3">
@@ -116,7 +116,7 @@
             let projectId = $('#project').val();
             if (projectId) {
                 $.post("{{ url_for('ticket.fetch_pbts') }}", { project_id: projectId }, function (data) {
-                    updateDropdown('#pbt', data, "Select PBT");
+                    updateDropdown('#pbt', data, "Select Customer");
                 });
             }
         }

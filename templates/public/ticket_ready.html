@@ -33,7 +33,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="pbt" class="form-label">PBT:</label>
+                            <label for="pbt" class="form-label">Customer:</label>
                             <select class="form-control" name="pbt" id="pbt" required></select>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
             let projectId = $('#project').val();
             if (projectId) {
                 $.post("{{ url_for('ticket.fetch_pbts') }}", { project_id: projectId }, function (data) {
-                    updateDropdown('#pbt', data, "Select PBT");
+                    updateDropdown('#pbt', data, "Select Customer");
                 });
             }
         }
@@ -133,8 +133,8 @@
                 let subject = `${data.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetName} | ${issue}`;
                 
                 // Collect IFES emails and Member emails
-                let ifesEmails = data.ifesEmails.join(";");
-                let memberEmails = data.memberEmails.join(";");
+                let ifesEmails = data.ifesEmails.join(",");
+                let memberEmails = data.memberEmails.join(",");
                 let costCentre = data.costCentre || "Unknown";
                 
                 let body = `Dear team\n\nKindly accept INC escalation\n\n`;
