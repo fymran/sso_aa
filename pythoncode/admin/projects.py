@@ -71,18 +71,14 @@ def add_project():
 # Edit project
 @projects_bp.route('/edit_project/<string:projID>', methods=['GET', 'POST'])
 def edit_project(projID):
-    if request.method == 'POST':
-        projCode = request.form['projCode']
-        projName = request.form['projName']
-        prodID = request.form['productID']
-        costCentre = request.form['costCentre']
+    projCode = request.form['projCode']
+    projName = request.form['projName']
+    prodID = request.form['productID']
+    costCentre = request.form['costCentre']
+    if projCode or projName or prodID or costCentre:
         execute_query('UPDATE PROJECT SET projectCode=%s, projectName=%s, productID=%s, costCentre=%s WHERE projectID=%s', (projCode, projName, prodID, costCentre, projID))
         flash('Project updated successfully!')
         return redirect(url_for('projects.projects'))
-
-    # Fetch project details for editing
-    project = execute_query('SELECT * FROM PROJECT WHERE projectID = %s', (projID,), fetch=True)[0]
-    return render_template('admin/edit_project.html', project=project)
 
 # Delete project
 @projects_bp.route('/delete_project/<string:projID>', methods=['POST'])

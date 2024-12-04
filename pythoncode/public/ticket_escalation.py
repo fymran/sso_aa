@@ -27,9 +27,26 @@ def fetch_pbts():
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            query = f"SELECT DISTINCT A.pbtID, PBT.pbtName FROM asset_{project_id} A LEFT JOIN PBT ON A.pbtID = PBT.pbtID"
+            query = f"SELECT DISTINCT A.pbtID, PBT.pbtName, PBT.pbtCode FROM asset_{project_id} A LEFT JOIN PBT ON A.pbtID = PBT.pbtID"
             cursor.execute(query)
             pbts = cursor.fetchall()
+
+            if project_id == '1':
+                additional_customers = [
+                    {'id': 1, 'name': 'IPD SERDANG', 'code':'IPDSDG'},
+                    {'id': 3, 'name': 'IPD GOMBAK', 'code':'IPDGBK'},
+                    {'id': 4, 'name': 'IPD KUALA SELANGOR', 'code':'IPDKS'},
+                    {'id': 5, 'name': 'IPD SABAK BERNAM', 'code':'IPDSM'},
+                    {'id': 6, 'name': 'IPD KLANG UTARA', 'code':'IPDKU'},
+                    {'id': 7, 'name': 'IPD PETALING JAYA', 'code':'IPDPJ'},
+                    {'id': 8, 'name': 'IPD SHAH ALAM', 'code':'IPDSA'},
+                    {'id': 10, 'name': 'IPD HULU SELANGOR', 'code':'IPDHS'},
+                    {'id': 11, 'name': 'IPD KUALA LANGAT', 'code':'IPDKL'},
+                    {'id': 12, 'name': 'IPD SEPANG', 'code':'IPDSPG'},
+                    {'id': 13, 'name': 'IPD KAJANG', 'code':'IPDKJ'}
+                ]
+                # Convert to the same structure as the database output
+                pbts += [(customer['id'], customer['name'], customer['code']) for customer in additional_customers]
 
         return jsonify(pbts)
     except Exception as e:

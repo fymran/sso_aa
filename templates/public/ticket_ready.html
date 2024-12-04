@@ -108,7 +108,9 @@
                 $(selector).append(new Option(placeholderText, '', true, true)).attr('disabled', false);
             }
             items.forEach(item => {
-                $(selector).append(new Option(item[1], item[0]));
+                let option = new Option(item[1], item[0]);
+                option.setAttribute('data-code', item[2]);
+                $(selector).append(option);
             });
         }
 
@@ -122,6 +124,7 @@
             let inc = $('#inc').val();
             let inc2 = $('#inc2').val();
             let issue = $('#issue').val();
+            let cust = $('#pbt option:selected').data('code');
 
             // Make a fetch request to load asset details
             $.post(`{{ url_for('ticket.fetch_detail', projectID='') }}${projectId}`, { asset_id: assetId }, function (data) {
@@ -129,7 +132,7 @@
                     alert(data.error);
                     return;
                 }
-                let cust = data.pbtCode;
+                
                 let subject = `${data.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetName} | ${issue}`;
                 
                 // Collect IFES emails and Member emails

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character CRUD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Character Management</h1>
+
+        <!-- Add New Character Form -->
+        <form method="POST" action="/add" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="charName" class="form-control" placeholder="Add new character" required>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form>
+
+        <!-- Character Table -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for char in characters %}
+                <tr>
+                    <td>{{ char[0] }}</td>
+                    <td>{{ char[1] }}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="offcanvas" data-bs-target="#editOffcanvas{{ char[0] }}">Edit</button>
+                        <form method="POST" action="/delete/{{ char[0] }}" style="display:inline-block;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <!-- Offcanvas for Editing -->
+                <div class="offcanvas offcanvas-end" id="editOffcanvas{{ char[0] }}">
+                    <div class="offcanvas-header">
+                        <h5>Edit Character</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <form method="POST" action="/edit/{{ char[0] }}">
+                            <div class="mb-3">
+                                <label for="charName{{ char[0] }}" class="form-label">Character Name</label>
+                                <input type="text" id="charName{{ char[0] }}" name="charName" class="form-control" value="{{ char[1] }}" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
