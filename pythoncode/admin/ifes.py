@@ -34,41 +34,35 @@ def ifes_list():
     LEFT JOIN WILAYAH ON IFES.wilayahID = WILAYAH.wilayahID
     """
     ifes_records = execute_query(query, fetch=True)
-    return render_template('admin/ifes.html', ifes=ifes_records)
+    wilayah_records = get_wilayah_dropdown()
+    return render_template('admin/ifes.html', ifes=ifes_records, wilayahs=wilayah_records)
 
 # Add a new IFES
-@ifes_bp.route('/add_ifes', methods=['GET', 'POST'])
+@ifes_bp.route('/add_ifes', methods=['POST'])
 def add_ifes():
-    if request.method == 'POST':
-        ifes_data = (
+    ifes_data = (
             request.form['ifesName'],
             request.form['ifesEmail'],
             request.form['wilayahID']
         )
+    if ifes_data:
         execute_query('INSERT INTO IFES (ifesName, ifesEmail, wilayahID) VALUES (%s, %s, %s)', ifes_data)
         flash('New IFES added successfully!')
-        return redirect(url_for('ifes.ifes_list'))
-
-    wilayah_records = get_wilayah_dropdown()
-    return render_template('admin/add_ifes.html', wilayahs=wilayah_records)
+    return redirect(url_for('ifes.ifes_list'))
 
 # Edit IFES
-@ifes_bp.route('/edit_ifes/<int:ifesID>', methods=['GET', 'POST'])
+@ifes_bp.route('/edit_ifes/<int:ifesID>', methods=['POST'])
 def edit_ifes(ifesID):
-    if request.method == 'POST':
-        ifes_data = (
+    ifes_data = (
             request.form['ifesName'],
             request.form['ifesEmail'],
             request.form['wilayahID'],
             ifesID
         )
+    if ifes_data:
         execute_query('UPDATE IFES SET ifesName = %s, ifesEmail = %s, wilayahID = %s WHERE ifesID = %s', ifes_data)
         flash('IFES updated successfully!')
-        return redirect(url_for('ifes.ifes_list'))
-
-    ifes = execute_query('SELECT * FROM IFES WHERE ifesID = %s', (ifesID,), fetch=True)[0]
-    wilayah_records = get_wilayah_dropdown()
-    return render_template('admin/edit_ifes.html', ifes=ifes, wilayahs=wilayah_records)
+    return redirect(url_for('ifes.ifes_list'))
 
 # Delete IFES
 @ifes_bp.route('/delete_ifes/<int:ifesID>', methods=['POST'])

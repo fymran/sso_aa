@@ -23,20 +23,22 @@ def zone_list():
     ''')
     zone_records = cursor.fetchall()
 
+    cursor.execute('SELECT wilayahID, wilayahName FROM WILAYAH')
+    wilayahs = cursor.fetchall()
+
     cursor.close()
     conn.close()
-    return render_template('admin/zone.html', zones=zone_records)
+    return render_template('admin/zone.html', zones=zone_records, wilayahs=wilayahs)
 
 # Add a new Zone
-@zone_bp.route('/add_zone', methods=['GET', 'POST'])
+@zone_bp.route('/add_zone', methods=['POST'])
 def add_zone():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    if request.method == 'POST':
-        zoneName = request.form['zoneName']
-        wilayahID = request.form['wilayahID']
-
+    zoneName = request.form['zoneName']
+    wilayahID = request.form['wilayahID']
+    if zoneName and wilayahID:
         # Insert the new Zone into the database
         cursor.execute('INSERT INTO ZONE (zoneName, wilayahID) VALUES (%s, %s)', (zoneName, wilayahID))
         conn.commit()
@@ -45,26 +47,17 @@ def add_zone():
         conn.close()
 
         flash('New Zone added successfully!')
-        return redirect(url_for('zone.zone_list'))
-
-    # Fetch all Wilayahs to populate the dropdown
-    cursor.execute('SELECT wilayahID, wilayahName FROM WILAYAH')
-    wilayahs = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-    return render_template('admin/add_zone.html', wilayahs=wilayahs)
+    return redirect(url_for('zone.zone_list'))
 
 # Edit an existing Zone
-@zone_bp.route('/edit_zone/<int:zoneID>', methods=['GET', 'POST'])
+@zone_bp.route('/edit_zone/<int:zoneID>', methods=['POST'])
 def edit_zone(zoneID):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    if request.method == 'POST':
-        zoneName = request.form['zoneName']
-        wilayahID = request.form['wilayahID']
-
+    zoneName = request.form['zoneName']
+    wilayahID = request.form['wilayahID']
+    if zoneName and wilayahID:
         # Update the Zone record
         cursor.execute('UPDATE ZONE SET zoneName = %s, wilayahID = %s WHERE zoneID = %s', (zoneName, wilayahID, zoneID))
         conn.commit()
@@ -73,19 +66,7 @@ def edit_zone(zoneID):
         conn.close()
 
         flash('Zone updated successfully!')
-        return redirect(url_for('zone.zone_list'))
-
-    # Fetch the current Zone data
-    cursor.execute('SELECT zoneID, zoneName, wilayahID FROM ZONE WHERE zoneID = %s', (zoneID,))
-    zone = cursor.fetchone()
-
-    # Fetch all Wilayahs to populate the dropdown
-    cursor.execute('SELECT wilayahID, wilayahName FROM WILAYAH')
-    wilayahs = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-    return render_template('admin/edit_zone.html', zone=zone, wilayahs=wilayahs)
+    return redirect(url_for('zone.zone_list'))
 
 # Delete a Zone
 @zone_bp.route('/delete_zone/<int:zoneID>', methods=['POST'])

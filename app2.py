@@ -6,9 +6,9 @@ app = Flask(__name__)
 # MySQL Database Configuration
 db_config = {
     'host': 'localhost',
-    'user': 'root',  # Replace with your MySQL username
-    'password': '',  # Replace with your MySQL password
-    'database': 'sso_db',  # Replace with your database name
+    'user': 'root',
+    'password': '',
+    'database': 'sso_db',
 }
 
 # Helper function to interact with the database
@@ -22,12 +22,20 @@ def query_db(query, args=(), fetchone=False):
     conn.close()
     return data
 
-# Initialize database table
+# Initialize database tables
 def init_db():
+    query_db('''
+        CREATE TABLE IF NOT EXISTS species (
+            speciesID INT AUTO_INCREMENT PRIMARY KEY,
+            speciesName VARCHAR(255) NOT NULL
+        )
+    ''')
     query_db('''
         CREATE TABLE IF NOT EXISTS character1 (
             charID INT AUTO_INCREMENT PRIMARY KEY,
-            charName VARCHAR(255) NOT NULL
+            charName VARCHAR(255) NOT NULL,
+            speciesID INT NOT NULL,
+            FOREIGN KEY (speciesID) REFERENCES species(speciesID)
         )
     ''')
 
@@ -36,23 +44,30 @@ init_db()
 # Home route
 @app.route('/')
 def index():
-    characters = query_db("SELECT * FROM character1")
-    return render_template('index.html', characters=characters)
+    characters = query_db('''
+        SELECT c.charID, c.charName, c.speciesID, s.speciesName
+        FROM character1 c
+        JOIN species s ON c.speciesID = s.speciesID
+    ''')
+    species_list = query_db("SELECT * FROM species")
+    return render_template('index.html', characters=characters, species_list=species_list)
 
 # Add character
 @app.route('/add', methods=['POST'])
 def add_character():
     char_name = request.form['charName']
-    if char_name:
-        query_db("INSERT INTO character1 (charName) VALUES (%s)", (char_name,))
+    species_id = request.form['speciesID']
+    if char_name and species_id:
+        query_db("INSERT INTO character1 (charName, speciesID) VALUES (%s, %s)", (char_name, species_id))
     return redirect(url_for('index'))
 
 # Edit character
 @app.route('/edit/<int:charID>', methods=['POST'])
 def edit_character(charID):
     char_name = request.form['charName']
-    if char_name:
-        query_db("UPDATE character1 SET charName = %s WHERE charID = %s", (char_name, charID))
+    species_id = request.form['speciesID']
+    if char_name and species_id:
+        query_db("UPDATE character1 SET charName = %s, speciesID = %s WHERE charID = %s", (char_name, species_id, charID))
     return redirect(url_for('index'))
 
 # Delete character

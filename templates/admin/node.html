@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manage Nodes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin - Node</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    </head>
 <body>
+    {% include '/admin/admin_header.html' %}
+<div class="container mt-5">    
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="alert alert-warning mt-3">
@@ -13,37 +16,102 @@
             </div>
         {% endif %}
     {% endwith %}
-<div class="container mt-5">
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button style="background-color:cadetblue" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseTwo">
+                    <h4>Add New Node</h4>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                <div class="accordion-body" style="background-color: rgb(155, 188, 205);">
+                    <form action="{{ url_for('node.add_node') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="nodeCode" class="form-label">Node Code</label>
+                            <input type="text" class="form-control" id="nodeCode" name="nodeCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nodeName" class="form-label">Node Name</label>
+                            <input type="text" class="form-control" id="nodeName" name="nodeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="zoneID" class="form-label">Zone</label>
+                            <select class="form-control" id="zoneID" name="zoneID" required>
+                                {% for zone in zones %}
+                                <option value="{{ zone[0] }}"> {{ zone[1]}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add Node</button>
+                        <a href="/node" class="btn btn-secondary">cancel</a>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div> 
     <h2>Node List</h2>
-    <a href="/admin_dashboard" class="btn btn-secondary">Dashboard</a>
-    <a href="/add_node" class="btn btn-primary">Add New Node</a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Node Code</th>
-                <th>Node Name</th>
-                <th>Zone</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for node in nodes %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ node[1] }}</td>
-                <td>{{ node[2] }}</td>
-                <td>{{ node[3] or 'N/A' }}</td> <!-- Show 'N/A' if zoneName is NULL -->
-                <td>
-                    <a href="{{ url_for('node.edit_node', nodeID=node[0]) }}" class="btn btn-primary">Edit</a>
-                    <form action="{{ url_for('node.delete_node', nodeID=node[0]) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>        
-    </table>   
+    <div class="overflow-y-scroll" style="max-height: 600px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Node Code</th>
+                    <th>Node Name</th>
+                    <th>Zone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for node in nodes %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ node[1] }}</td>
+                    <td>{{ node[2] }}</td>
+                    <td>{{ node[3] or 'N/A' }}</td> <!-- Show 'N/A' if zoneName is NULL -->
+                    <td>
+                        <a data-bs-toggle="offcanvas" data-bs-target="#offcanvasEdit{{ node[0] }}" aria-controls="offcanvasEdit" class="btn btn-primary">Edit</a>
+                        <form action="{{ url_for('node.delete_node', nodeID=node[0]) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEdit{{ node[0] }}" aria-labelledby="offcanvasEditLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="offcanvasEditLabel">Edit Node</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <form action="{{ url_for('node.edit_node', nodeID=node[0]) }}" method="POST">
+                            <div class="mb-3">
+                                <label for="nodeCode{{ node[0] }}" class="form-label">Node Code</label>
+                                <input type="text" class="form-control" id="nodeCode{{ node[0] }}" name="nodeCode" value="{{ node[1] }}" required>
+                            </div>
+                
+                            <div class="mb-3">
+                                <label for="nodeName{{ node[0] }}" class="form-label">Node Name</label>
+                                <input type="text" class="form-control" id="nodeName{{ node[0] }}" name="nodeName" value="{{ node[2] }}" >
+                            </div>
+                
+                            <div class="mb-3">
+                                <label for="zoneID{{ node[0] }}}" class="form-label">Zone</label>
+                                <select class="form-control" id="zoneID{ node[0] }}" name="zoneID" required>
+                                    {% for zone in zones %}
+                                    <option value="{{ zone[0] }}" {% if node[3] == zone[1]%}selected{% endif %}> {{ zone[1]}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{{ url_for('node.node_list') }}" class="btn btn-secondary">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>        
+        </table>  
+    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

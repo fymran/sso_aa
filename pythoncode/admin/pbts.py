@@ -35,7 +35,7 @@ def add_pbt():
         pbtCode = request.form['pbtCode']
         pbtName = request.form['pbtName']
         execute_query('INSERT INTO PBT (pbtCode, pbtName) VALUES (%s, %s)', (pbtCode, pbtName))
-        flash('New PBT added successfully!')
+        flash('New Customer added successfully!')
         return redirect(url_for('pbts.pbts'))
 
     return render_template('admin/add_pbt.html')
@@ -47,7 +47,7 @@ def edit_pbt(pbtID):
         pbtCode = request.form['pbtCode']
         pbtName = request.form['pbtName']
         execute_query('UPDATE PBT SET pbtCode=%s, pbtName=%s WHERE pbtID = %s', (pbtCode, pbtName, pbtID))
-        flash('PBT updated successfully!')
+        flash('Customer updated successfully!')
         return redirect(url_for('pbts.pbts'))
     
     # Fetch the PBT data for editing
@@ -58,5 +58,5 @@ def edit_pbt(pbtID):
 @pbts_bp.route('/delete_pbt/<int:pbtID>', methods=['POST'])
 def delete_pbt(pbtID):
     execute_query('DELETE FROM PBT WHERE pbtID = %s', (pbtID,))
-    flash('PBT deleted successfully!')
+    flash('Customer deleted successfully!')
     return redirect(url_for('pbts.pbts'))

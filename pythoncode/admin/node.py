@@ -30,46 +30,39 @@ def node_list():
     LEFT JOIN ZONE ON NODE.zoneID = ZONE.zoneID
     """
     node_records = execute_query(query, fetch=True)
-    return render_template('admin/node.html', nodes=node_records)
+    zone_records = execute_query('SELECT zoneID, zoneName FROM ZONE', fetch=True)
+
+    return render_template('admin/node.html', nodes=node_records, zones=zone_records)
 
 # Add a new NODE
-@node_bp.route('/add_node', methods=['GET', 'POST'])
+@node_bp.route('/add_node', methods=['POST'])
 def add_node():
-    if request.method == 'POST':
-        nodeCode = request.form['nodeCode']
-        nodeName = request.form['nodeName']
-        zoneID = request.form['zoneID']
+    nodeCode = request.form['nodeCode']
+    nodeName = request.form['nodeName']
+    zoneID = request.form['zoneID']
+    if nodeCode and nodeName and zoneID:
         
         execute_query(
             'INSERT INTO NODE (nodeCode, nodeName, zoneID) VALUES (%s, %s, %s)', 
             (nodeCode, nodeName, zoneID)
         )
         flash('New Node added successfully!')
-        return redirect(url_for('node.node_list'))
-    
-    # Fetch all zones for the dropdown
-    zone_records = execute_query('SELECT zoneID, zoneName FROM ZONE', fetch=True)
-    return render_template('admin/add_node.html', zones=zone_records)
+    return redirect(url_for('node.node_list'))
 
 # Edit NODE
 @node_bp.route('/edit_node/<int:nodeID>', methods=['GET', 'POST'])
 def edit_node(nodeID):
-    if request.method == 'POST':
-        nodeCode = request.form['nodeCode']
-        nodeName = request.form['nodeName']
-        zoneID = request.form['zoneID']
+    nodeCode = request.form['nodeCode']
+    nodeName = request.form['nodeName']
+    zoneID = request.form['zoneID']
+    if nodeCode and nodeName and zoneID:
         
         execute_query(
             'UPDATE NODE SET nodeCode = %s, nodeName = %s, zoneID = %s WHERE nodeID = %s', 
             (nodeCode, nodeName, zoneID, nodeID)
         )
         flash('Node updated successfully!')
-        return redirect(url_for('node.node_list'))
-    
-    # Fetch the node and zone data for the dropdown
-    node = execute_query('SELECT nodeID, nodeCode, nodeName, zoneID FROM NODE WHERE nodeID = %s', (nodeID,), fetch=True)[0]
-    zone_records = execute_query('SELECT zoneID, zoneName FROM ZONE', fetch=True)
-    return render_template('admin/edit_node.html', node=node, zones=zone_records)
+    return redirect(url_for('node.node_list'))
 
 # Delete NODE
 @node_bp.route('/delete_node/<int:nodeID>', methods=['POST'])

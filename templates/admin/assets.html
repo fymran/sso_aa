@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <title>Assets</title>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin - Asset</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    </head>
 <body>
-    {% include '/admin/header.html' %}
+    {% include '/admin/admin_header.html' %}
+<div class="container mt-5">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="alert alert-warning mt-3">
@@ -15,44 +16,99 @@
             </div>
         {% endif %}
     {% endwith %}
-<div class="container mt-5">
-    <h1>Assets for Project: {{ projectCode[0] }}</h1>
-    <a href="/admin_dashboard" class="btn btn-secondary">back to Dashboard</a>
-    <a href="/manage_asset" class="btn btn-secondary">back to Select Project</a>
-    <a href="{{ url_for('asset.add_asset', projectID=projectID) }}" class="btn btn-primary">Add New Asset</a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Asset Code</th>
-                <th>PBT</th>
-                <th>Address</th>
-                <th>Coordi North</th>
-                <th>Coordi East</th>
-                <th>Postcode</th>
-                <th>Node</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for asset in assets %}
-            <tr>
-                <td>{{ asset[1] }}</td>
-                <td>{{ asset[2] }}</td>
-                <td>{{ asset[3] }}</td>
-                <td>{{ asset[4] }}</td>
-                <td>{{ asset[5] }}</td>
-                <td>{{ asset[6] }}</td>
-                <td>{{ asset[7] }}</td>
-                <td>
-                    <a href="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0]) }}" class="btn btn-primary">Edit</a>
-                    <form action="{{ url_for('asset.delete_asset', projectID=projectID, assetID=asset[0]) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button style="background-color:cadetblue" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseTwo">
+                    <h4>Add New Asset to Project: {{ projectCode[0] }}</h4>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                <div class="accordion-body" style="background-color: rgb(155, 188, 205);">
+                    <form action="{{ url_for('asset.add_asset', projectID=projectID) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="assetNo" class="form-label">Asset Code</label>
+                            <input type="text" class="form-control" id="assetNo" name="assetNo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pbtID" class="form-label">Customer</label>
+                            <select class="form-control" id="pbtID" name="pbtID" required>
+                                <option value="" disabled selected>Select Customer</option>
+                                {% for pbt in pbts %}
+                                <option value="{{ pbt[0] }}">{{ pbt[1] }}</option> <!-- pbtID value and pbtCode displayed -->
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" >
+                        </div>
+                        <div class="mb-3">
+                            <label for="coordiNorth" class="form-label">Coordinate North</label>
+                            <input type="number" step="0.0000000001" class="form-control" id="coordiNorth" name="coordiNorth" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="coordiEast" class="form-label">Coordinate East</label>
+                            <input type="number" step="0.0000000001" class="form-control" id="coordiEast" name="coordiEast" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postcode" class="form-label">Postcode</label>
+                            <input type="text" class="form-control" id="postcode" name="postcode" >
+                        </div>
+                        <div class="mb-3">
+                            <label for="nodeID" class="form-label">Node ID</label>
+                            <input class="form-control" list="datalistNode" id="nodeDataList" name="nodeID" placeholder="Type to search node">
+                            <datalist id="datalistNode">
+                                <option value="N/A" selected>
+                                {% for node in nodes %}
+                                <option value="{{ node[0] }} {{ node[1] }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add Asset</button>
+                        <a href="{{ url_for('asset.asset_list', projectID=projectID) }}" class="btn btn-secondary">Cancel</a>
                     </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <h1>Assets for Project: {{ projectCode[0] }} <a href="/manage_asset" class="btn btn-secondary mb-2">Select Other Project</a></h1>
+    <div class="overflow-y-scroll" style="max-height: 600px;">
+        <table class=" mt-3 table table-bordered table-hover table-striped border-secondary">
+            <thead>
+                <tr>
+                    <th>Asset No</th>
+                    <th>Customer</th>
+                    <th>Address</th>
+                    <th>Coordinate North</th>
+                    <th>Coordinate East</th>
+                    <th>Postcode</th>
+                    <th>Node</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asset in assets %}
+                <tr>
+                    <td>{{ asset[1] }}</td>
+                    <td>{{ asset[2] }}</td>
+                    <td>{{ asset[3] }}</td>
+                    <td>{{ asset[4] }}</td>
+                    <td>{{ asset[5] }}</td>
+                    <td>{{ asset[6] }}</td>
+                    <td>{{ asset[7] }}</td>
+                    <td>
+                        <a href="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0]) }}" class="btn btn-primary">Edit</a>
+                        <form action="{{ url_for('asset.delete_asset', projectID=projectID, assetID=asset[0]) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

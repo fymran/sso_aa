@@ -19,21 +19,23 @@ def wilayah_list():
     cursor.execute('SELECT wilayahID, wilayahCode, wilayahName, stateCode FROM WILAYAH')
     wilayah_records = cursor.fetchall()
 
+    cursor.execute('SELECT stateCode FROM STATE')
+    state_records = cursor.fetchall()
+
     cursor.close()
     conn.close()
-    return render_template('admin/wilayah.html', wilayahs=wilayah_records)
+    return render_template('admin/wilayah.html', wilayahs=wilayah_records, states=state_records)
 
 # Add a new Wilayah
-@wilayah_bp.route('/add_wilayah', methods=['GET', 'POST'])
+@wilayah_bp.route('/add_wilayah', methods=['POST'])
 def add_wilayah():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    if request.method == 'POST':
-        wilayahCode = request.form['wilayahCode']
-        wilayahName = request.form['wilayahName']
-        stateCode = request.form['stateCode']
-
+    wilayahCode = request.form['wilayahCode']
+    wilayahName = request.form['wilayahName']
+    stateCode = request.form['stateCode']
+    if wilayahCode and wilayahName and stateCode:
         # Insert the new Wilayah into the database
         cursor.execute('INSERT INTO WILAYAH (wilayahCode, wilayahName, stateCode) VALUES (%s, %s, %s)', (wilayahCode, wilayahName, stateCode))
         conn.commit()
@@ -41,28 +43,17 @@ def add_wilayah():
         conn.close()
 
         flash('New Wilayah added successfully!')
-        return redirect(url_for('wilayah.wilayah_list'))
-
-    # Fetch all stateCode from STATE for the dropdown
-    cursor.execute('SELECT stateCode FROM STATE')
-    state_records = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    return render_template('admin/add_wilayah.html', states=state_records)
+    return redirect(url_for('wilayah.wilayah_list'))
 
 # Edit an existing Wilayah
-@wilayah_bp.route('/edit_wilayah/<int:wilayahID>', methods=['GET', 'POST'])
+@wilayah_bp.route('/edit_wilayah/<int:wilayahID>', methods=['POST'])
 def edit_wilayah(wilayahID):
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    if request.method == 'POST':
-        wilayahCode = request.form['wilayahCode']
-        wilayahName = request.form['wilayahName']
-        stateCode = request.form['stateCode']
-
+    wilayahCode = request.form['wilayahCode']
+    wilayahName = request.form['wilayahName']
+    stateCode = request.form['stateCode']
+    if wilayahCode and wilayahName and stateCode:
         # Update the Wilayah record
         cursor.execute('UPDATE WILAYAH SET wilayahCode = %s, wilayahName = %s, stateCode = %s WHERE wilayahID = %s', (wilayahCode, wilayahName, stateCode, wilayahID))
         conn.commit()
@@ -70,20 +61,7 @@ def edit_wilayah(wilayahID):
         conn.close()
 
         flash('Wilayah updated successfully!')
-        return redirect(url_for('wilayah.wilayah_list'))
-
-    # Fetch the current Wilayah data for the form
-    cursor.execute('SELECT wilayahID, wilayahCode, wilayahName, stateCode FROM WILAYAH WHERE wilayahID = %s', (wilayahID,))
-    wilayah = cursor.fetchone()
-
-    # Fetch all stateCode from STATE for the dropdown
-    cursor.execute('SELECT stateCode FROM STATE')
-    state_records = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    return render_template('admin/edit_wilayah.html', wilayah=wilayah, states=state_records)
+    return redirect(url_for('wilayah.wilayah_list'))
 
 # Delete a Wilayah
 @wilayah_bp.route('/delete_wilayah/<int:wilayahID>', methods=['POST'])

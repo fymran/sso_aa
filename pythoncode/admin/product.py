@@ -27,32 +27,23 @@ def product():
     product = execute_query('SELECT productID, productName FROM PRODUCT', fetch=True)
     return render_template('admin/product.html', product=product)
 
-# Add a new member
-@product_bp.route('/add_product', methods=['GET', 'POST'])
+# Add a new product
+@product_bp.route('/add_product', methods=['POST'])
 def add_product():
-    if request.method == 'POST':
-        productName = request.form['productName']
+    productName = request.form['productName']
+    if productName:
         execute_query('INSERT INTO PRODUCT (productName) VALUES (%s)', (productName,))
         flash('New product added successfully!')
-        return redirect(url_for('product.product'))
-    
-    return render_template('admin/add_product.html')
+    return redirect(url_for('product.product'))
 
 # Edit product
 @product_bp.route('/edit_product/<int:productID>', methods=['GET', 'POST'])
 def edit_product(productID):
-    if request.method == 'POST':
-        product = (request.form['productName'], productID)
+    productName = request.form['productName']
+    if productName:
         execute_query('UPDATE product SET productName = %s WHERE productID = %s', product)
         flash('Product updated successfully!')
-        return redirect(url_for('product.product'))
-
-    product = execute_query('SELECT productID, productName FROM product WHERE productID = %s', (productID,), fetch=True)
-    if product:
-        return render_template('admin/edit_product.html', product=product[0])
-    else:
-        flash('Product not found.')
-        return redirect(url_for('product.product'))
+    return redirect(url_for('product.product'))
 
 # Delete product
 @product_bp.route('/delete_product/<int:productID>', methods=['POST'])

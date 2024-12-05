@@ -1,4 +1,4 @@
-from flask import session, Blueprint, render_template, request, redirect, url_for, flash
+from flask import jsonify,session, Blueprint, render_template, request, redirect, url_for, flash, logging
 from db_config import get_db_connection
 
 asset_bp = Blueprint('asset', __name__)
@@ -9,15 +9,24 @@ def restrict_to_admin():
         flash('Please log in to access the admin panel.')
         return redirect(url_for('login'))
 
-# Utility function for fetching PBTs and Nodes for dropdowns
-def get_dropdown_data():
+#fetch only pbt involved in the project
+def fetch_pbts(project_id):
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT pbtID, pbtCode FROM PBT')
+        query = f"SELECT DISTINCT A.pbtID, PBT.pbtName, PBT.pbtCode FROM asset_{project_id} A LEFT JOIN PBT ON A.pbtID = PBT.pbtID"
+        cursor.execute(query)
         pbts = cursor.fetchall()
+
+    return pbts
+
+# Utility function for fetching PBTs and Nodes for dropdowns
+def fetch_nodes():
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
         cursor.execute('SELECT nodeID, nodeCode FROM NODE')
         nodes = cursor.fetchall()
-    return pbts, nodes
+    return nodes
 
 # Step 1: Select Project
 @asset_bp.route('/manage_asset', methods=['GET', 'POST'])
@@ -50,22 +59,23 @@ def asset_list(projectID):
             cursor.execute('SELECT projectCode FROM PROJECT WHERE projectID = %s', (projectID,))
             projectCode = cursor.fetchone()
 
-    return render_template('admin/assets.html', assets=assets, projectID=projectID, projectCode=projectCode)
+    nodes = fetch_nodes()
+    pbts = fetch_pbts(projectID)
+    return render_template('admin/assets.html', assets=assets, projectID=projectID, projectCode=projectCode, pbts=pbts, nodes=nodes)
 
 # Step 3: Add Asset
-@asset_bp.route('/add_asset/<int:projectID>', methods=['GET', 'POST'])
+@asset_bp.route('/add_asset/<int:projectID>', methods=['POST'])
 def add_asset(projectID):
-    if request.method == 'POST':
-        asset_data = (
-            request.form['assetNo'],
-            request.form['pbtID'],
-            request.form['address'],
-            request.form['coordiNorth'],
-            request.form['coordiEast'],
-            request.form['postcode'],
-            request.form.get('nodeID') or None
-        )
-        
+    asset_data = (
+        request.form['assetNo'],
+        request.form['pbtID'],
+        request.form['address'],
+        request.form['coordiNorth'],
+        request.form['coordiEast'],
+        request.form['postcode'],
+        request.form.get('nodeID') or None
+    )
+    if asset_data:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(f"""
@@ -75,10 +85,7 @@ def add_asset(projectID):
             conn.commit()
 
         flash('Asset added successfully!')
-        return redirect(url_for('asset.asset_list', projectID=projectID))
-
-    pbts, nodes = get_dropdown_data()
-    return render_template('admin/add_asset.html', projectID=projectID, pbts=pbts, nodes=nodes)
+    return redirect(url_for('asset.asset_list', projectID=projectID))
 
 # Step 4: Edit Asset
 @asset_bp.route('/edit_asset/<int:projectID>/<int:assetID>', methods=['GET', 'POST'])
@@ -111,11 +118,15 @@ def edit_asset(projectID, assetID):
 
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute(f'SELECT * FROM {asset_table} WHERE assetID = %s', (assetID,))
+        cursor.execute(f'SELECT A.assetID, A.assetNo, A.pbtID, A.address, A.coordiNorth, A.coordiEast, A.postcode, A.nodeID, P.pbtCode FROM {asset_table} A join PBT P on A.pbtID=P.pbtID WHERE assetID = %s', (assetID,))
         asset = cursor.fetchone()
+        cursor.execute('SELECT projectCode FROM PROJECT WHERE projectID = %s', (projectID,))
+        projectCode = cursor.fetchone()
 
-    pbts, nodes = get_dropdown_data()
-    return render_template('admin/edit_asset.html', asset=asset, projectID=projectID, nodes=nodes, pbts=pbts)
+    nodes = fetch_nodes()
+    pbts = fetch_pbts(projectID)
+
+    return render_template('admin/edit_asset.html', asset=asset, projectID=projectID, nodes=nodes, pbts=pbts, projectCode=projectCode)
 
 # Step 5: Delete Asset
 @asset_bp.route('/delete_asset/<int:projectID>/<int:assetID>', methods=['POST'])

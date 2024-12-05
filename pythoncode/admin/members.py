@@ -28,28 +28,22 @@ def members():
     return render_template('admin/members.html', members=members)
 
 # Add a new member
-@members_bp.route('/add_member', methods=['GET', 'POST'])
+@members_bp.route('/add_member', methods=['POST'])
 def add_member():
-    if request.method == 'POST':
-        email = request.form['email']
+    email = request.form['email']
+    if email:
         execute_query('INSERT INTO MEMBER (memberEmail) VALUES (%s)', (email,))
-        flash('New member added successfully!')
-        return redirect(url_for('members.members'))
-    
-    return render_template('admin/add_member.html')
+        flash('New CC added successfully!')
+    return redirect(url_for('members.members'))
 
 # Edit a member
-@members_bp.route('/edit_member/<int:member_id>', methods=['GET', 'POST'])
+@members_bp.route('/edit_member/<int:member_id>', methods=['POST'])
 def edit_member(member_id):
-    if request.method == 'POST':
-        email = request.form.get('email')
-        if email:
-            execute_query('UPDATE MEMBER SET memberEmail = %s WHERE memberID = %s', (email, member_id))
-            flash('Member updated successfully!')
-            return redirect(url_for('members.members'))
-
-    member = execute_query('SELECT * FROM MEMBER WHERE memberID = %s', (member_id,), fetch=True)[0]
-    return render_template('admin/edit_member.html', member=member)
+    email = request.form['email']
+    if email:
+        execute_query('UPDATE MEMBER SET memberEmail = %s WHERE memberID = %s', (email, member_id))
+        flash('CC updated successfully!')
+    return redirect(url_for('members.members'))
 
 # Delete a member
 @members_bp.route('/delete_member/<int:member_id>', methods=['POST'])

@@ -12,10 +12,18 @@
 
         <!-- Add New Character Form -->
         <form method="POST" action="/add" class="mb-4">
-            <div class="input-group">
+            <div class="mb-3">
                 <input type="text" name="charName" class="form-control" placeholder="Add new character" required>
-                <button type="submit" class="btn btn-primary">Add</button>
             </div>
+            <div class="mb-3">
+                <select name="speciesID" class="form-select" required>
+                    <option value="">Select Species</option>
+                    {% for species in species_list %}
+                    <option value="{{ species[0] }}">{{ species[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add</button>
         </form>
 
         <!-- Character Table -->
@@ -24,6 +32,7 @@
                 <tr>
                     <th>#</th>
                     <th>Name</th>
+                    <th>Species</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -32,6 +41,7 @@
                 <tr>
                     <td>{{ char[0] }}</td>
                     <td>{{ char[1] }}</td>
+                    <td>{{ char[3] }}</td>
                     <td>
                         <button class="btn btn-warning btn-sm" data-bs-toggle="offcanvas" data-bs-target="#editOffcanvas{{ char[0] }}">Edit</button>
                         <form method="POST" action="/delete/{{ char[0] }}" style="display:inline-block;">
@@ -51,6 +61,14 @@
                             <div class="mb-3">
                                 <label for="charName{{ char[0] }}" class="form-label">Character Name</label>
                                 <input type="text" id="charName{{ char[0] }}" name="charName" class="form-control" value="{{ char[1] }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="speciesID{{ char[0] }}" class="form-label">Species</label>
+                                <select id="speciesID{{ char[0] }}" name="speciesID" class="form-select" required>
+                                    {% for species in species_list %}
+                                    <option value="{{ species[0] }}" {% if char[2] == species[0] %}selected{% endif %}>{{ species[1] }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-success">Save Changes</button>
                         </form>
