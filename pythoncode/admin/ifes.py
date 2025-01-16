@@ -7,7 +7,7 @@ ifes_bp = Blueprint('ifes', __name__)
 def restrict_to_admin():
     if 'admin' not in session:
         flash('Please log in to access the admin panel.')
-        return redirect(url_for('login'))
+        return redirect(url_for('login')) 
 
 # Helper functions
 def execute_query(query, args=None, fetch=False):
