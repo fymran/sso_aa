@@ -16,7 +16,7 @@ def execute_query(query, args=None, fetch=False):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(query, args or ())
-    result = cursor.fetchall() if fetch else None
+    result = cursor.fetchall() if fetch else None 
     conn.commit()
     cursor.close()
     conn.close()
