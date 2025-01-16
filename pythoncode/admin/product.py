@@ -25,7 +25,7 @@ def execute_query(query, args=None, fetch=False):
 @product_bp.route('/product')
 def product():
     product = execute_query('SELECT productID, productName FROM PRODUCT', fetch=True)
-    return render_template('admin/product.html', product=product)
+    return render_template('admin/product.html', product=product) 
 
 # Add a new product
 @product_bp.route('/add_product', methods=['POST'])
