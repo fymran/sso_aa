@@ -1,4 +1,4 @@
-from flask import jsonify,session, Blueprint, render_template, request, redirect, url_for, flash, logging
+from flask import session, Blueprint, render_template, request, redirect, url_for, flash
 from db_config import get_db_connection
 
 asset_bp = Blueprint('asset', __name__)
@@ -125,8 +125,8 @@ def edit_asset(projectID, assetID):
 
     nodes = fetch_nodes()
     pbts = fetch_pbts(projectID)
-
-    return render_template('admin/edit_asset.html', asset=asset, projectID=projectID, nodes=nodes, pbts=pbts, projectCode=projectCode)
+    
+    return render_template('admin/edit_asset.html',projectCode=projectCode, asset=asset, projectID=projectID, nodes=nodes, pbts=pbts)
 
 # Step 5: Delete Asset
 @asset_bp.route('/delete_asset/<int:projectID>/<int:assetID>', methods=['POST'])
