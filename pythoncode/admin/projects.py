@@ -7,7 +7,7 @@ projects_bp = Blueprint('projects', __name__)
 @projects_bp.before_request
 def restrict_to_admin():
     if 'admin' not in session:
-        flash('Please log in to access the admin panel.')
+        flash('Please log in to access the admin panel.') 
         return redirect(url_for('login'))
 
 # Helper function for executing queries
