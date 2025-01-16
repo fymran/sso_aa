@@ -19,7 +19,7 @@ def execute_query(query, args=None, fetch=False):
     conn.commit()
     cursor.close()
     conn.close()
-    return result
+    return result 
 
 # View all members
 @members_bp.route('/members')
