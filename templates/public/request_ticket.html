@@ -34,7 +34,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="pbt" class="form-label">PBT:</label>
+                            <label for="pbt" class="form-label">Customer:</label>
                             <select class="form-control" name="pbt" id="pbt" required></select>
                         </div>
                         <div class="mb-3">
@@ -52,7 +52,7 @@
                                 <select name="asset" class="form-control" id="asset" required></select>    
                             </div>
                             <div class="mb-3">
-                                <label for="ip" class="form-label">Asset IP:</label>
+                                <label for="ip" class="form-label">unknown(eg: CCZ04):</label>
                                 <input type="text" class="form-control" name="ip" id="ip" required>    
                             </div>
                             <div class="mb-3">
@@ -60,7 +60,7 @@
                                 <input name="issue" class="form-control" id="issue" required>  
                             </div>
                             <div class="mb-3">
-                                <label for="serial" class="form-label">Asset Serial Number:</label>
+                                <label for="serial" class="form-label">Asset:</label>
                                 <input type="text" class="form-control" name="serial" id="serial" required>
                             </div>
                             <div class="mb-3">
@@ -71,13 +71,16 @@
                                 </select>
                             </div>
                             <a class="btn btn-secondary" href="{{ url_for('ticket.remote_ticket_menu') }}">Back</a>
-                            <button type="button" class="btn btn-warning" onclick="addAsset()">Add Asset</button>
+                            <button type="button" class="btn btn-primary" onclick="addAsset()">Add Asset</button>
                             <button type="button" class="btn btn-success" onclick="generateEmail()">Generate Email</button>
                            
                         </div>
                     </div>
                 </div>
             </form>
+        </li>
+        <li class="list-group-item mt-3">
+            <ul id="asset-list"></ul>
         </li>
     </ul>
 </div>
@@ -116,7 +119,7 @@
             let projectId = $('#project').val();
             if (projectId) {
                 $.post("{{ url_for('ticket.fetch_pbts') }}", { project_id: projectId }, function (data) {
-                    updateDropdown('#pbt', data, "Select PBT");
+                    updateDropdown('#pbt', data, "Select Customer");
                 });
             }
         }
@@ -172,7 +175,7 @@
         function updateAssetList() {
             $('#asset-list').empty();
             assetTickets.forEach((asset, index) => {
-                $('#asset-list').append(`<li>${asset.assetName} (Wilayah: ${asset.wilayah}) <button onclick="removeAsset(${index})">Remove</button></li>`);
+                $('#asset-list').append(`<li>${asset.assetName} (Wilayah: ${asset.wilayah}) <button class="btn btn-warning" onclick="removeAsset(${index})">Remove</button></li>`);
             });
         }
 

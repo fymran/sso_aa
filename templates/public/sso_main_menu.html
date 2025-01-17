@@ -16,6 +16,13 @@
 
 <body>
 <div class="container mt-5 ">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-warning mt-3">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
     <div class="">
         <h1 style="text-align:center; font-size:50px; color:#e29928; font-weight: bold;">MAIN MENU</h1>
     </div>

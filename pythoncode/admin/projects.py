@@ -22,11 +22,16 @@ def execute_query(query, args=None, fetch=False):
     conn.close()
     return result
 
+def get_product_dropdown():
+    """Fetches all product data for dropdown menus."""
+    return execute_query('SELECT productID, productName FROM PRODUCT', fetch=True)
+
 # View all projects
 @projects_bp.route('/projects')
 def projects():
     projects = execute_query('SELECT a.projectID, a.projectCode, a.projectName, b.productName, a.costCentre FROM PROJECT a join PRODUCT b ON a.productID = b.productID', fetch=True)
-    return render_template('admin/projects.html', projects=projects)
+    product_records = get_product_dropdown()
+    return render_template('admin/projects.html', projects=projects, products=product_records)
 
 # Add a new project and create its corresponding asset table
 @projects_bp.route('/add_project', methods=['POST'])

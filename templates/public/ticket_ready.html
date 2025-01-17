@@ -34,7 +34,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="pbt" class="form-label">PBT:</label>
+                            <label for="pbt" class="form-label">Customer:</label>
                             <select class="form-control" name="pbt" id="pbt" required></select>
                         </div>
                     </div>
@@ -60,8 +60,9 @@
                                 <input class="form-control" name="issue" id="issue" required>
                             </div>
                             <a class="btn btn-secondary" href="{{ url_for('ticket.remote_ticket_menu') }}">Back</a>
-                            <button type="button" class="btn btn-success" onclick="generateEmail()">Generate Email</button>
-                            
+                            <button type="button" class="btn btn-success" onclick="generateEmail(',')">Generate Email 1</button>
+                            <button type="button" class="btn btn-warning" onclick="generateEmail(';')">Generate Email 2</button>
+                            <br>*if an error regarding recipient or CC occurred in the  email drafted try the other button!!
                         </div>
                     </div>
                 </div>
@@ -89,7 +90,7 @@
             let projectId = $('#project').val();
             if (projectId) {
                 $.post("{{ url_for('ticket.fetch_pbts') }}", { project_id: projectId }, function (data) {
-                    updateDropdown('#pbt', data, "Select PBT");
+                    updateDropdown('#pbt', data, "Select Customer");
                 });
             }
         }
@@ -111,11 +112,13 @@
                 $(selector).append(new Option(placeholderText, '', true, true)).attr('disabled', false);
             }
             items.forEach(item => {
-                $(selector).append(new Option(item[1], item[0]));
+                let option = new Option(item[1], item[0]);
+                option.setAttribute('data-code', item[2]);
+                $(selector).append(option);
             });
         }
 
-        function generateEmail() {
+        function generateEmail(separator) {
             let assetId = $('#asset').val();
             let assetName = $('#asset option:selected').text();
             let projectId = $('#project').val();
@@ -125,6 +128,7 @@
             let inc = $('#inc').val();
             let inc2 = $('#inc2').val();
             let issue = $('#issue').val();
+            let cust = $('#pbt option:selected').data('code');
 
             // Make a fetch request to load asset details
             $.post(`{{ url_for('ticket.fetch_detail', projectID='') }}${projectId}`, { asset_id: assetId }, function (data) {
@@ -132,13 +136,12 @@
                     alert(data.error);
                     return;
                 }
-                let cust = data.pbtCode;
                 let subject = `${data.wilayahCode || ''} | IFES | ${projName} | ${cust} | ${assetName} | ${issue}`;
                 
                 // Collect IFES emails and Member emails
-                let ifesEmails = data.ifesEmails.join(";");
-                let memberEmails = data.memberEmails.join(";");
-                
+                let ifesEmails = data.ifesEmails.join(separator);
+                let memberEmails = data.memberEmails.join(separator);
+                let costCentre = data.costCentre || "Unknown";
                 
                 let body = `Dear team\n\nKindly accept INC escalation\n\n`;
                 body += `Project name: ${projectName} (${projName})\nCustomer: ${customer}\nCost Centre: ${costCentre}\n\n`;
