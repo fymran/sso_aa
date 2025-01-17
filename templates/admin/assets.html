@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin - Asset</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Asset</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='image/ssoaa_logo.jpg') }}">
+</head>
 <body>
     {% include '/admin/admin_header.html' %}
 <div class="container mt-5">
@@ -16,11 +19,14 @@
             </div>
         {% endif %}
     {% endwith %}
+<div class="container mt-5">
     <div class="accordion" id="accordionExample">
+        <a href="/manage_asset" class="btn btn-secondary mb-2 ">Back</a>
+        <h1  style="text-align:center; font-size:45px; color:#e29928; font-weight: bold;">ASSET LIST : {{ projectCode[0] }} </h1>
         <div class="accordion-item">
             <h2 class="accordion-header">
-                <button style="background-color:cadetblue" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseTwo">
-                    <h4>Add New Asset to Project: {{ projectCode[0] }}</h4>
+                <button style="background-color:cadetblue; color:black;" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseTwo">
+                    <h4>Add New Asset to {{ projectCode[0] }}</h4>
                 </button>
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
@@ -65,29 +71,36 @@
                                 {% endfor %}
                             </datalist>
                         </div>
-                        <button type="submit" class="btn btn-success">Add Asset</button>
+                        <button type="submit" class="btn btn-success">Add</button>
                         <a href="{{ url_for('asset.asset_list', projectID=projectID) }}" class="btn btn-secondary">Cancel</a>
                     </form>
                 </div>
             </div>
         </div>
     </div> 
-    <h1>Assets for Project: {{ projectCode[0] }} <a href="/manage_asset" class="btn btn-secondary mb-2">Select Other Project</a></h1>
-    <div class="overflow-y-scroll" style="max-height: 600px;">
-        <table class=" mt-3 table table-bordered table-hover table-striped border-secondary">
-            <thead>
+<br>
+    <!-- Search Bars -->
+    <div class="d-flex justify-content-center mb-3">
+        <input type="text" id="assetSearch" class="form-control search-bar me-5" placeholder="Search by Asset No" onkeyup="filterTable()">
+        <input type="text" id="pbtSearch" class="form-control search-bar" placeholder="Search by PBT" onkeyup="filterTable()">
+    </div>
+
+    <!-- Assets Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="assetTable">
+            <thead class="thead-dark">
                 <tr>
-                    <th>Asset No</th>
-                    <th>Customer</th>
+                    <th>Asset Code</th>
+                    <th>PBT</th>
                     <th>Address</th>
-                    <th>Coordinate North</th>
-                    <th>Coordinate East</th>
+                    <th>Coordi North</th>
+                    <th>Coordi East</th>
                     <th>Postcode</th>
                     <th>Node</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="assetTableBody">
                 {% for asset in assets %}
                 <tr>
                     <td>{{ asset[1] }}</td>
@@ -98,9 +111,9 @@
                     <td>{{ asset[6] }}</td>
                     <td>{{ asset[7] }}</td>
                     <td>
-                        <a href="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0]) }}" class="btn btn-primary">Edit</a>
+                        <a href="{{ url_for('asset.edit_asset', projectID=projectID, assetID=asset[0]) }}" class="btn btn-sm btn-warning mb-2">Edit</a>
                         <form action="{{ url_for('asset.delete_asset', projectID=projectID, assetID=asset[0]) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
                         </form>
                     </td>
                 </tr>
@@ -108,8 +121,134 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination Controls -->
+    <nav>
+        <ul class="pagination" id="paginationControls">
+            <!-- Pagination items will be dynamically added here -->
+        </ul>
+    </nav>
+
+    <!-- Bootstrap and jQuery scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        const rowsPerPage = 10;
+        let currentPage = 1;
+        let currentStartPage = 1;
+
+        function displayPage(page) {
+            const tableBody = document.getElementById("assetTableBody");
+            const rows = tableBody.getElementsByTagName("tr");
+            const totalRows = rows.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+            currentPage = page;
+            for (let i = 0; i < totalRows; i++) {
+                rows[i].style.display = (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) ? "" : "none";
+            }
+
+            updatePagination(totalPages);
+        }
+
+        function updatePagination(totalPages) {
+            const paginationControls = document.getElementById("paginationControls");
+            paginationControls.innerHTML = "";
+
+            const maxVisiblePages = 5; // Number of page links to display at a time
+            let endPage = Math.min(currentStartPage + maxVisiblePages - 1, totalPages);
+
+            // "Previous" button
+            const prevLi = document.createElement("li");
+            prevLi.classList.add("page-item");
+            prevLi.classList.toggle("disabled", currentStartPage === 1); // Disable if on the first set
+            const prevLink = document.createElement("a");
+            prevLink.classList.add("page-link");
+            prevLink.href = "#";
+            prevLink.textContent = "Previous";
+            prevLink.onclick = function (e) {
+                e.preventDefault();
+                if (currentStartPage > 1) {
+                    currentStartPage -= maxVisiblePages;
+                    displayPage(currentStartPage);
+                }
+            };
+            prevLi.appendChild(prevLink);
+            paginationControls.appendChild(prevLi);
+
+            // Page links within the visible range
+            for (let i = currentStartPage; i <= endPage; i++) {
+                const pageLi = createPaginationItem(i);
+                paginationControls.appendChild(pageLi);
+            }
+
+            // "Next" button
+            const nextLi = document.createElement("li");
+            nextLi.classList.add("page-item");
+            nextLi.classList.toggle("disabled", endPage >= totalPages); // Disable if on the last set
+            const nextLink = document.createElement("a");
+            nextLink.classList.add("page-link");
+            nextLink.href = "#";
+            nextLink.textContent = "Next";
+            nextLink.onclick = function (e) {
+                e.preventDefault();
+                if (endPage < totalPages) {
+                    currentStartPage += maxVisiblePages;
+                    displayPage(currentStartPage);
+                }
+            };
+            nextLi.appendChild(nextLink);
+            paginationControls.appendChild(nextLi);
+        }
+
+        function createPaginationItem(page) {
+            const li = document.createElement("li");
+            li.classList.add("page-item");
+            if (page === currentPage) li.classList.add("active");
+
+            const a = document.createElement("a");
+            a.classList.add("page-link");
+            a.href = "#";
+            a.textContent = page;
+            a.onclick = function (e) {
+                e.preventDefault();
+                displayPage(page);
+            };
+
+            li.appendChild(a);
+            return li;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            displayPage(currentPage);
+        });
+
+        function filterTable() {
+            const assetSearch = document.getElementById("assetSearch").value.toLowerCase();
+            const pbtSearch = document.getElementById("pbtSearch").value.toLowerCase();
+            const tableBody = document.getElementById("assetTableBody");
+            const rows = tableBody.getElementsByTagName("tr");
     
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
+            for (let i = 0; i < rows.length; i++) {
+                const assetNo = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+                const pbt = rows[i].getElementsByTagName("td")[1].textContent.toLowerCase();
+    
+                // Display rows that match both search fields
+                rows[i].style.display = (assetNo.includes(assetSearch) && pbt.includes(pbtSearch)) ? "" : "none";
+            }
+        }
+    
+        // Pagination update when filters are applied
+        document.getElementById("assetSearch").addEventListener("input", function() {
+            displayPage(1);
+        });
+        document.getElementById("pbtSearch").addEventListener("input", function() {
+            displayPage(1);
+        });
+        
+    </script>
+
+</body>    
 </html>
