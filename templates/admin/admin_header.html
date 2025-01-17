@@ -1,6 +1,6 @@
-<div class="container-fluid bg-primary py-3 hstack gap-3 sticky-top">
+<div class="container-fluid py-3 hstack gap-3 sticky-top" style="background-color: #17385c;">
     <div class="">
-        <a class="btn btn-primary" data-bs-toggle="offcanvas" href="#offcanvasAdminMenu" role="button" aria-controls="offcanvasAdminMenu">
+        <a class="btn" data-bs-toggle="offcanvas" href="#offcanvasAdminMenu" role="button" aria-controls="offcanvasAdminMenu" style="color: white; ">
             <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                 ::before
                 <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"></path>
@@ -8,60 +8,83 @@
         </a>
     </div>
     
-    <div class="">
-        <a href="/admin_dashboard">
-            <h4 class="text-light">Welcome, {{ session['username'] }}</h4>
+    <!-- Welcome text with logo -->
+    <div class="d-flex align-items-center">
+        <a href="/admin_dashboard" class="text-decoration-none d-flex align-items-center">
+            <img src="{{ url_for('static', filename='image/logo.png') }}" alt="Logo" style="width: 170px; height: auto; margin-right: 1px; margin-left: 1px;">
+            <h4 class="text-light m-0 ms-2" style="font-weight:bold;">WELCOME, {{ session['username'] | upper }}</h4>
         </a>
     </div>
 
     <div class="ms-auto">
-        <a href="{{ url_for('logout') }}" class="btn btn-danger" onclick="confirmLogout(event)">Logout</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger" style:"margin-right:5px;" onclick="confirmLogout(event)">Logout</a>
     </div>
 
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasAdminMenu" aria-labelledby="offcanvasAdminMenuLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasAdminmenuLabel">Admin Menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <!-- Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasAdminMenu" aria-labelledby="offcanvasAdminMenuLabel" style="background-color:rgba(23, 56, 92, 0.8);">
+        <!-- Close button at the top-right -->
+    <div class="d-flex justify-content-end mt-2 me-2">
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" style="background-color:orange;"></button>
+    </div>
+
+    <!-- Logo and title below the close button -->
+    <div class="text-center">
+        <h5 class="offcanvas-title mb-3" id="offcanvasAdminMenuLabel" style="color: orange; font-weight:bold; ">
+            <img src="{{ url_for('static', filename='image/logo.png') }}" alt="Logo" style="width: 180px; height: auto;">
+            <h5 class="offcanvas-title mt-2" id="offcanvasAdminMenuLabel" style="color: white; font-weight:bold; ">
+            WELCOME BACK {{ session['username'] | upper }} !</h5>
         </div>
+        
         <div class="offcanvas-body">
-            <p>Select a table to manage:</p>
-            <ul class="list-group">
-                <li class="btn btn-warning list-group-item">
-                    <a href="/projects" class="stretched-link">Manage Projects</a>
+            <p style="color:white;">Select a table to manage:</p>
+            <ul class="list-group ">
+                <li class="btn btn-warning list-group-item mb-2">
+                    <a href="/admin_dashboard">Home</a>
                 </li>
                 <li class="btn btn-warning list-group-item">
-                    <a href="/pbts" class="stretched-link">Manage Customers</a>
+                    <a href="/projects" class="stretched-link">Manage Project</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
+                <li class="btn btn-warning list-group-item mt-2">
+                    <a href="/pbts" class="stretched-link">Manage Customer</a>
+                </li>
+                <li class="btn btn-warning list-group-item mt-2">
                     <a href="/ifes" class="stretched-link">Manage IFES</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
-                    <a href="/members" class="stretched-link">Manage Members</a>
+                <li class="btn btn-warning list-group-item mt-2">
+                    <a href="/members" class="stretched-link">Manage Member</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
-                    <a href="/state" class="stretched-link">Manage States</a>
+                <li class="btn btn-warning list-group-item mt-2">
+                    <a href="/state" class="stretched-link">Manage State</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
-                    <a href="/wilayah" class="stretched-link">Manage Wilayahs</a>
+                <li class="btn btn-warning list-group-item mt-2">
+                    <a href="/wilayah" class="stretched-link">Manage Wilayah</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
-                    <a href="/zone" class="stretched-link">Manage Zones</a>
+                <li class="btn btn-warning list-group-item mt-2">
+                    <a href="/zone" class="stretched-link">Manage Zone</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
-                    <a href="/node" class="stretched-link">Manage Nodes</a>
+                <li class="btn btn-warning list-group-item mt-2">
+                    <a href="/node" class="stretched-link">Manage Node</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
-                    <a href="{{ url_for('asset.manage_asset') }}" class="stretched-link">Manage Assets</a>
+                <li class="btn btn-warning list-group-item mt-2">
+                    <a href="{{ url_for('asset.manage_asset') }}" class="stretched-link">Manage Asset</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
+                <li class="btn btn-warning list-group-item mt-2">
                     <a href="/product" class="stretched-link">Manage Product</a>
                 </li>
-                <li class="btn btn-warning list-group-item">
+                <li class="btn btn-warning list-group-item mt-2">
                     <a href="/user" class="stretched-link">Manage User</a>
                 </li>
             </ul>
+            <!-- Logout Button -->
+            <div class="mt-auto">
+                <a href="{{ url_for('logout') }}" class="btn btn-danger list-group-item rounded mt-3" onclick="confirmLogout(event)" 
+                style="background-color:red; color:white;" onmouseover="this.style.backgroundColor='#D20103'"onmouseout="this.style.backgroundColor='red'">
+                    Logout
+                </a>
+            </div>
         </div>
     </div>
+    
 </div>
 <script>
     function confirmLogout(event) {
