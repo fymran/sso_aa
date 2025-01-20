@@ -6,7 +6,6 @@ from pythoncode.admin.projects import projects_bp
 from pythoncode.admin.pbts import pbts_bp
 from pythoncode.admin.ifes import ifes_bp
 from pythoncode.admin.members import members_bp
-from pythoncode.admin.team import team_bp
 from pythoncode.admin.state import state_bp
 from pythoncode.admin.visuals import visual_bp
 from pythoncode.admin.wilayah import wilayah_bp
@@ -25,7 +24,7 @@ app.secret_key = 'your_secret_key'
 
 # Register Blueprints
 admin_blueprints = [
-    admin_bp, projects_bp, pbts_bp, members_bp, team_bp, ifes_bp,
+    admin_bp, projects_bp, pbts_bp, members_bp, ifes_bp,
     state_bp, visual_bp, wilayah_bp, zone_bp, node_bp, asset_bp, product_bp, user_bp
 ]
 

@@ -18,7 +18,7 @@
     {% endwith %}
 <div class="container mt-5">
     <h2>Assign Member to IFES Leaders</h2>
-    <form method="POST" action="{{ url_for('team.assign_team', member_id=member_id) }}">
+    <form method="POST" action="{{ url_for('members.assign_team', member_id=member_id) }}">
         <div class="form-group">
             <label for="wilayah">Select Wilayah:</label>
             <select name="wilayahID" id="wilayahID" class="form-control" required>
@@ -50,7 +50,7 @@
             if (wilayahID && wilayahID !== '') {
                 // Construct the correct URL using a proper format
                 $.ajax({
-                    url: "{{ url_for('team.get_ifes_leaders', wilayah_id='WILAYAHID') }}".replace('WILAYAHID', wilayahID),
+                    url: "{{ url_for('members.get_ifes_leaders', wilayah_id='WILAYAHID') }}".replace('WILAYAHID', wilayahID),
                     method: "GET",
                     success: function(data){
                         $('#ifes_list').html(data);

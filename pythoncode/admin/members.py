@@ -51,3 +51,42 @@ def delete_member(member_id):
     execute_query('DELETE FROM MEMBER WHERE memberID = %s', (member_id,))
     flash('Member deleted successfully!')
     return redirect(url_for('members.members'))
+
+# Route to display assign team page
+@members_bp.route('/assign_team/<int:member_id>', methods=['GET', 'POST'])
+def assign_team(member_id):
+    if request.method == 'POST':
+        wilayahID = request.form['wilayahID']
+
+        # Get all IFES IDs associated with the selected wilayahID
+        ifes_ids = execute_query('SELECT ifesID FROM IFES WHERE wilayahID = %s', (wilayahID,), fetch=True)
+
+        # Check and assign the memberID to all IFES IDs in the selected wilayah
+        for ifesID in ifes_ids:
+            # Check if the combination of ifesID and memberID already exists
+            existing = execute_query(
+                'SELECT * FROM TEAM WHERE ifesID = %s AND memberID = %s', (ifesID[0], member_id), fetch=True
+            )
+
+            if existing:
+                flash(f'Error: Member is already assigned to IFES ID {ifesID[0]} in Wilayah {wilayahID}.')
+            else:
+                execute_query('INSERT INTO TEAM (ifesID, memberID) VALUES (%s, %s)', (ifesID[0], member_id))
+                flash(f'Member successfully assigned to IFES ID {ifesID[0]} in Wilayah {wilayahID}!')
+
+    # Fetch all wilayahs for the dropdown
+    wilayahs = execute_query('SELECT wilayahID, wilayahName FROM WILAYAH', fetch=True)
+    return render_template('admin/assign_team.html', member_id=member_id, wilayahs=wilayahs)
+
+# Get IFES leaders based on selected wilayah (AJAX)
+@members_bp.route('/get_ifes_leaders/<string:wilayah_id>')
+def get_ifes_leaders(wilayah_id):
+    ifes_leaders = execute_query('SELECT ifesID, ifesName FROM IFES WHERE wilayahID = %s', (wilayah_id,), fetch=True)
+
+    # Build the list of IFES leaders dynamically
+    if ifes_leaders:
+        list_html = '<ul>' + ''.join([f'<li>{ifes[1]}</li>' for ifes in ifes_leaders]) + '</ul>'
+    else:
+        list_html = '<p>No IFES found for this wilayah.</p>'
+
+    return list_html
