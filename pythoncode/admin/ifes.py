@@ -47,7 +47,7 @@ def add_ifes():
         )
     if ifes_data:
         execute_query('INSERT INTO IFES (ifesName, ifesEmail, wilayahID) VALUES (%s, %s, %s)', ifes_data)
-        flash('New IFES added successfully!')
+        flash('New CFF added successfully!')
     return redirect(url_for('ifes.ifes_list'))
 
 # Edit IFES
@@ -61,7 +61,7 @@ def edit_ifes(ifesID):
         )
     if ifes_data:
         execute_query('UPDATE IFES SET ifesName = %s, ifesEmail = %s, wilayahID = %s WHERE ifesID = %s', ifes_data)
-        flash('IFES updated successfully!')
+        flash('CFF updated successfully!')
     return redirect(url_for('ifes.ifes_list'))
 
 # Delete IFES
